@@ -165,7 +165,7 @@ if __name__ == '__main__':
         dataModel = peach.templates[dataModelName]
         for sample in samples:
             dataModel = peach.templates[dataModelName].copy(peach)
-            with open(sample, "rb") as fd:
+            with open(sample, "r") as fd:
                 data = fd.read()
             buff = PublisherBuffer(None, data, True)
             cracker = DataCracker(peach)

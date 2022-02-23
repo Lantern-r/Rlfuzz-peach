@@ -232,7 +232,7 @@ class FuzzBaseEnv(gym.Env):
             # muteble_block_num = sum([n << l for n, l in zip( muteble_block_nums, ll[-2:])])
             #
             #TODO:解析样本格式
-            #
+            #self.seed_block=crackdata()
 
             # 根据可变异块的编号选择变异位置
             # (block_start_loc,block_length)=self.seed_block[muteble_block_num]

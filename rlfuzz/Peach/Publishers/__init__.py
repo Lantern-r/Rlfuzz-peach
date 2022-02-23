@@ -15,10 +15,10 @@ from . import remote
 from . import dll
 from . import smtp
 from . import wifi
-from . import sslayer
+
 
 
 __all__ = ["file", "sql", "stdout",
            "tcp", "udp", "com", "process",
            "http", "icmp", "raw", "remote",
-           "dll", "smtp", "wifi", "sslayer"]
+           "dll", "smtp", "wifi", ]

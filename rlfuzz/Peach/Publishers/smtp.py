@@ -8,8 +8,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-from email import Encoders
-from email.Utils import COMMASPACE, formatdate
+# from email import Encoders
+# from email.Utils import COMMASPACE, formatdate
 from rlfuzz.Peach.publisher import Publisher
 from rlfuzz.Peach.Engine.common import PeachException
 
@@ -111,13 +111,13 @@ class EmailAttachment(Publisher):
         msg = MIMEMultipart()
         msg['From'] = self.msgFrom
         msg['To'] = self.msgTo
-        msg['Date'] = formatdate(localtime=True)
+        #msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = self.msgSubject
         msg.attach(MIMEText(self.msgText))
         # Attach file
         part = MIMEBase('application', 'pdf')
         part.set_payload(data)
-        Encoders.encode_base64(part)
+        #Encoders.encode_base64(part)
         part.add_header('Content-Disposition', 'attachment; filename="%s"' % self.fileName)
         msg.attach(part)
         # Send email

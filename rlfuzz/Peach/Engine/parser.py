@@ -86,6 +86,8 @@ class ParseTemplate(object):
         return r
 
     def substituteConfigVariables(self, xmlString, final=False):
+        if isinstance(xmlString,bytes):
+            xmlString = xmlString.decode("utf-8")
         result = []
         pos = 0
         numVarsLeft = 0
@@ -139,8 +141,10 @@ class ParseTemplate(object):
         elif unresolved:
             for u in unresolved:
                 logging.warning("Unresolved macro: %s" % u)
-
-        return "".join(result)
+        result_str = ""
+        for each in result:
+            result_str += each
+        return result_str
 
     def parse(self, uri):
         """
@@ -201,24 +205,24 @@ class ParseTemplate(object):
 
         # FIRST check for a configuration section. If one exists, we need to parse it and then restart.
 
-        #print "Looking for Configuration element"
+        # print "Looking for Configuration element"
         has_config = False
         for child in doc.iterchildren():
             child_tag = split_ns(child.tag)[1]
             if child_tag != 'Configuration':
                 continue
-            #assert not has_config, "Multiple <Configuration> elements"
+            # assert not has_config, "Multiple <Configuration> elements"
             has_config = True
-            #print "Found Configuration element"
+            # print "Found Configuration element"
             for child in child.iterchildren():
                 child_tag = split_ns(child.tag)[1]
                 assert child_tag == "Macro", "Unknown child in Configuration element: {}".format(child_tag)
                 name = child.get("name")
                 if name not in self._configs:
-                    #print "\t%s = %s" % (name, child.get("value"))
+                    # print "\t%s = %s" % (name, child.get("value"))
                     self._configs[name] = child.get("value")
                 else:
-                    #print "\t%s = %s [dropped]" % (name, child.get("value"))
+                    # print "\t%s = %s [dropped]" % (name, child.get("value"))
                     pass
         return has_config
 
@@ -227,7 +231,7 @@ class ParseTemplate(object):
         if findConfigs and self.FindConfigurations(doc):
             return self.parseString(etree.tostring(doc), findConfigs=False)
 
-        #self.StripComments(doc)
+        # self.StripComments(doc)
         self.StripText(doc)
 
         ePeach = doc
@@ -237,7 +241,7 @@ class ParseTemplate(object):
 
         peach = dom.Peach()
         peach.peachPitUri = uri
-        #peach.node = doc
+        # peach.node = doc
         self.context = peach
         peach.mutators = None
 
@@ -297,7 +301,7 @@ class ParseTemplate(object):
 
         # one last check for unresolved macros
         for child in ePeach.iterdescendants():
-            for k,v in list(child.items()):
+            for k, v in list(child.items()):
                 child.set(k, self.substituteConfigVariables(v, final=True))
 
         # Pass 2 -- Import
@@ -360,7 +364,7 @@ class ParseTemplate(object):
             elif child_tag == 'DataModel' or child_tag == 'Template':
                 # do something
                 template = self.HandleTemplate(child, peach)
-                #template.node = child
+                # template.node = child
                 peach.append(template)
                 peach.templates.append(template)
                 setattr(peach.templates, template.name, template)
@@ -371,21 +375,21 @@ class ParseTemplate(object):
             if child_tag == 'Data':
                 # do data
                 data = self.HandleData(child, peach)
-                #data.node = child
+                # data.node = child
                 peach.append(data)
                 peach.data.append(data)
                 setattr(peach.data, data.name, data)
 
             elif child_tag == 'Agent':
                 agent = self.HandleAgent(child, None)
-                #agent.node = child
+                # agent.node = child
                 peach.append(agent)
                 peach.agents.append(agent)
                 setattr(peach.agents, agent.name, agent)
 
             elif child_tag == 'StateModel' or child_tag == 'StateMachine':
                 stateMachine = self.HandleStateMachine(child, peach)
-                #stateMachine.node = child
+                # stateMachine.node = child
                 peach.append(stateMachine)
 
             elif child_tag == 'Mutators':
@@ -398,14 +402,14 @@ class ParseTemplate(object):
             child_tag = split_ns(child.tag)[1]
             if child_tag == 'Test':
                 tests = self.HandleTest(child, None)
-                #tests.node = child
+                # tests.node = child
                 peach.append(tests)
                 peach.tests.append(tests)
                 setattr(peach.tests, tests.name, tests)
 
             elif child_tag == 'Run':
                 run = self.HandleRun(child, None)
-                #run.node = child
+                # run.node = child
                 peach.append(run)
                 peach.runs.append(run)
                 setattr(peach.runs, run.name, run)
@@ -435,7 +439,7 @@ class ParseTemplate(object):
         # We suck, so fix this up
         peach._FixParents()
         peach.verifyDomMap()
-        #peach.printDomMap()
+        # peach.printDomMap()
 
         return peach
 
@@ -443,7 +447,7 @@ class ParseTemplate(object):
         i = 0
         while i < len(node):
             if not etree.iselement(node[i]):
-                del node[i] # may not preserve text, don't care
+                del node[i]  # may not preserve text, don't care
             else:
                 self.StripComments(node[i])
                 i += 1
@@ -459,7 +463,7 @@ class ParseTemplate(object):
         been defined prior to this point in the XML
         """
 
-        #print "GetRef(%s) -- Starting" % str
+        # print "GetRef(%s) -- Starting" % str
 
         origStr = str
         baseObj = self.context
@@ -473,19 +477,19 @@ class ParseTemplate(object):
             ns, tmp = str.split(':')
             str = tmp
 
-            #print "GetRef(%s): Found namepsace: %s" % (str, ns)
+            # print "GetRef(%s): Found namepsace: %s" % (str, ns)
 
             # Check for namespace
             if hasattr(self.context.namespaces, ns):
                 baseObj = getattr(self.context.namespaces, ns)
             else:
-                #print self
+                # print self
                 raise PeachException("Unable to locate namespace: " + origStr)
 
             hasNamespace = True
 
         for name in str.split('.'):
-            #print "GetRef(%s): Looking for part %s" % (str, name)
+            # print "GetRef(%s): Looking for part %s" % (str, name)
 
             found = False
 
@@ -494,7 +498,7 @@ class ParseTemplate(object):
                 # level parent checking at each level.
 
                 while parent is not None and not found:
-                    #print "GetRef(%s): Parent.name: %s" % (name, parent.name)
+                    # print "GetRef(%s): Parent.name: %s" % (name, parent.name)
 
                     if hasattr(parent, 'name') and parent.name == name:
                         baseObj = parent
@@ -543,10 +547,10 @@ class ParseTemplate(object):
                     if child.elementType != 'namespace':
                         continue
 
-                    #print "GetRef(%s): CHecking namepsace: %s" % (str, child.name)
+                    # print "GetRef(%s): CHecking namepsace: %s" % (str, child.name)
                     ret = self._SearchNamespaces(child, name, childAttr)
                     if ret:
-                        #print "GetRef(%s) Found part %s in namespace" % (str, name)
+                        # print "GetRef(%s) Found part %s in namespace" % (str, name)
                         baseObj = ret
                         found = True
 
@@ -562,8 +566,8 @@ class ParseTemplate(object):
         Used by GetRef to search across namespaces
         """
 
-        #print "_SearchNamespaces(%s, %s)" % (obj.name, name)
-        #print "dir(obj): ", dir(obj)
+        # print "_SearchNamespaces(%s, %s)" % (obj.name, name)
+        # print "dir(obj): ", dir(obj)
 
         # Namespaces are stuffed under this variable
         # if we have it we should be it :)
@@ -601,7 +605,7 @@ class ParseTemplate(object):
             ns, tmp = str.split(':')
             str = tmp
 
-            #print "GetRef(): Found namepsace:",ns
+            # print "GetRef(): Found namepsace:",ns
 
             # Check for namespace
             if hasattr(self.context.namespaces, ns):
@@ -870,8 +874,7 @@ class ParseTemplate(object):
                 elif relation.From == oldName:
                     relation.From = template.name
 
-
-        #template.printDomMap()
+        # template.printDomMap()
         return template
 
     def HandleCommonTemplate(self, node, elem):
@@ -962,7 +965,7 @@ class ParseTemplate(object):
         if parent is not None:
             parent.transformer = transformer
             transformer.parent = parent
-            #parent.append(transformer)
+            # parent.append(transformer)
 
         return transformer
 
@@ -1058,7 +1061,6 @@ class ParseTemplate(object):
                     else:
                         String.defaultNullTerminated = False
 
-
     def HandleFixup(self, node, parent):
         """
         Handle Fixup element
@@ -1126,9 +1128,9 @@ class ParseTemplate(object):
             if parent.placement is not None:
                 raise PeachException("Error, data element [%s] already has a placement." % parent.name)
 
-            #print "Setting placement on",parent.name
+            # print "Setting placement on",parent.name
             parent.placement = placement
-            #parent.append(placement)
+            # parent.append(placement)
 
         return placement
 
@@ -1279,7 +1281,6 @@ class ParseTemplate(object):
 
         element.constraint = self._getAttribute(node, "constraint")
 
-
     def _HandleOccurs(self, node, element):
         """
         Grab min, max, and generated Occurs attributes
@@ -1356,7 +1357,7 @@ class ParseTemplate(object):
             block = dom.Block(name, parent)
             block.ref = None
 
-        #block.node = node
+        # block.node = node
 
         # length (in bytes)
 
@@ -1407,7 +1408,6 @@ class ParseTemplate(object):
         parent.append(block)
         return block
 
-
     def HandleDataContainerChildren(self, node, parent, errorOnUnknown=True):
         """
         Handle parsing conatiner children.  This method
@@ -1456,7 +1456,6 @@ class ParseTemplate(object):
 
             else:
                 self._HandleDataContainerChildren(node, child, parent, errorOnUnknown)
-
 
     def _HandleDataContainerChildren(self, node, child, parent, errorOnUnknown=True):
         node_nodeName = split_ns(node.tag)[1]
@@ -1553,7 +1552,6 @@ class ParseTemplate(object):
         parent.append(mutators)
         return mutators
 
-
     def HandleChoice(self, node, parent):
         # name
 
@@ -1568,7 +1566,7 @@ class ParseTemplate(object):
             # We have a base template
             obj = self.GetRef(self._getAttribute(node, 'ref'), parent)
 
-            #print "About to deep copy: ", obj, " for ref: ", self._getAttribute(node, 'ref')
+            # print "About to deep copy: ", obj, " for ref: ", self._getAttribute(node, 'ref')
 
             block = obj.copy(parent)
             block.name = name
@@ -1615,18 +1613,18 @@ class ParseTemplate(object):
         if node.get('ref') is not None:
             raise PeachException("Asn1 element does not yet support ref!")
             #
-            #if name == None or len(name) == 0:
+            # if name == None or len(name) == 0:
             #	name = Element.getUniqueName()
             #
             ## We have a base template
-            #obj = self.GetRef( self._getAttribute(node, 'ref'), parent )
+            # obj = self.GetRef( self._getAttribute(node, 'ref'), parent )
             #
             ##print "About to deep copy: ", obj, " for ref: ", self._getAttribute(node, 'ref')
             #
-            #block = obj.copy(parent)
-            #block.name = name
-            #block.parent = parent
-            #block.ref = self._getAttribute(node, 'ref')
+            # block = obj.copy(parent)
+            # block.name = name
+            # block.parent = parent
+            # block.ref = self._getAttribute(node, 'ref')
 
         else:
             block = Asn1Type(name, parent)
@@ -1839,7 +1837,6 @@ class ParseTemplate(object):
 
         self.HandleCommonDataElementAttributes(node, string)
 
-
         # Handle any common children
 
         self.HandleCommonTemplate(node, string)
@@ -1913,12 +1910,11 @@ class ParseTemplate(object):
         parent.append(number)
         return number
 
-
     def HandleFlags(self, node, parent):
         name = self._getAttribute(node, 'name')
 
         flags = dom.Flags(name, parent)
-        #flags.node = node
+        # flags.node = node
 
         # length (in bits)
 
@@ -1935,7 +1931,7 @@ class ParseTemplate(object):
         if node.get('endian') is not None:
             flags.endian = self._getAttribute(node, 'endian')
 
-            if not ( flags.endian == 'little' or flags.endian == 'big' ):
+            if not (flags.endian == 'little' or flags.endian == 'big'):
                 raise PeachException("Invalid endian type on Flags element")
 
         # rightToLeft
@@ -1986,12 +1982,11 @@ class ParseTemplate(object):
         parent.append(flags)
         return flags
 
-
     def HandleFlag(self, node, parent):
         name = self._getAttribute(node, 'name')
 
         flag = Flag(name, parent)
-        #flag.node = node
+        # flag.node = node
 
         # value
 
@@ -2014,7 +2009,6 @@ class ParseTemplate(object):
         if flag.position + flag.length > parent.length:
             raise PeachException("Invalid length, parent not big enough")
 
-
         # Handle any common children
 
         self.HandleCommonTemplate(node, flag)
@@ -2027,7 +2021,6 @@ class ParseTemplate(object):
 
         parent.append(flag)
         return flag
-
 
     def HandleBlob(self, node, parent):
         name = self._getAttribute(node, 'name')
@@ -2075,7 +2068,6 @@ class ParseTemplate(object):
         parent.append(blob)
         return blob
 
-
     def HandleCustom(self, node, parent):
         name = self._getAttribute(node, 'name')
 
@@ -2083,7 +2075,7 @@ class ParseTemplate(object):
 
         code = "PeachXml_%s(name, parent)" % cls
         custom = eval(code, globals(), locals())
-        #custom.node = node
+        # custom.node = node
 
         # value
 
@@ -2112,14 +2104,13 @@ class ParseTemplate(object):
         parent.append(custom)
         return custom
 
-
     def HandleSeek(self, node, parent):
         """
         Parse a <Seek> element, part of a data model.
         """
 
         seek = Seek(None, parent)
-        #seek.node = node
+        # seek.node = node
 
         seek.expression = self._getAttribute(node, 'expression')
         seek.position = self._getAttribute(node, 'position')
@@ -2136,7 +2127,6 @@ class ParseTemplate(object):
 
         parent.append(seek)
         return seek
-
 
     def HandleData(self, node, parent):
         # attribute: name
@@ -2206,7 +2196,6 @@ class ParseTemplate(object):
 
         return data
 
-
     def HandleField(self, node, parent):
         # name
 
@@ -2255,12 +2244,12 @@ class ParseTemplate(object):
         else:
             agent = Agent(name, parent)
 
-        #agent.node = node
+        # agent.node = node
         agent.description = self._getAttribute(node, 'description')
         agent.location = self._getAttribute(node, 'location')
         if agent.location is None or len(agent.location) == 0:
             agent.location = "LocalAgent"
-            #raise PeachException("Error: Agent definition must include location attribute.")
+            # raise PeachException("Error: Agent definition must include location attribute.")
 
         agent.password = self._getAttribute(node, 'password')
         if agent.password is not None and len(agent.password) == 0:
@@ -2277,7 +2266,7 @@ class ParseTemplate(object):
                     validOS = [x for x in self._getAttribute(child, "platform").split(",") if x == sys.platform]
                     if not validOS:
                         logging.debug('Monitor "%s" for %s is not supported on this platform.' %
-                                     (self._getAttribute(child, "class"), self._getAttribute(child, "platform")))
+                                      (self._getAttribute(child, "class"), self._getAttribute(child, "platform")))
                         continue
 
                 agent.append(self.HandleMonitor(child, agent))
@@ -2295,7 +2284,7 @@ class ParseTemplate(object):
                 raise PeachException("Found unexpected child of Agent element")
 
         ## A remote publisher might be in play
-        #if len(agent) < 1:
+        # if len(agent) < 1:
         #	raise Exception("Agent must have at least one Monitor child.")
 
         return agent
@@ -2328,7 +2317,6 @@ class ParseTemplate(object):
 
         return monitor
 
-
     # Handlers for Test ###################################################
 
     def HandleTest(self, node, parent):
@@ -2351,7 +2339,7 @@ class ParseTemplate(object):
         else:
             test = Test(name, parent)
 
-        #test.node = node
+        # test.node = node
         if node.get('description') is not None:
             test.description = self._getAttribute(node, 'description')
 
@@ -2386,7 +2374,7 @@ class ParseTemplate(object):
                     raise PeachException("Unable to locate StateMachine [%s] specified in Test [%s]" % (
                         str(self._getAttribute(child, 'ref')), name))
 
-                #print "*** StateMachine: ", stateMachine
+                # print "*** StateMachine: ", stateMachine
                 test.stateMachine = stateMachine.copy(test)
                 test.append(test.stateMachine)
 
@@ -2471,7 +2459,7 @@ class ParseTemplate(object):
         cls = self._getAttribute(node, 'class')
 
         # TODO why does this not work?
-        #return globals()["PeachXml_" + cls](node, parent)
+        # return globals()["PeachXml_" + cls](node, parent)
 
         exec("strategy = PeachXml_%s(node, parent)" % cls)
         return strategy
@@ -2492,9 +2480,9 @@ class ParseTemplate(object):
                 self._HandleIncludeExclude(child, state)
 
             elif child_nodeName == 'Data':
-            # Handle Data elements at Test-level
+                # Handle Data elements at Test-level
                 data = self.HandleData(child, path)
-                #data.node = child
+                # data.node = child
 
                 actions = [child for child in state if child.elementType == 'action']
                 for action in actions:
@@ -2611,7 +2599,6 @@ class ParseTemplate(object):
         # YUCK
         raise PeachException("Could not locate default set of Mutators to use.  Please fix this!")
 
-
     def HandleRun(self, node, parent):
         haveLogger = False
 
@@ -2622,7 +2609,7 @@ class ParseTemplate(object):
             name = self._getAttribute(node, 'name')
 
         run = Run(name, parent)
-        #run.node = node
+        # run.node = node
         run.description = self._getAttribute(node, 'description')
 
         if node.get('waitTime') is not None:
@@ -2666,7 +2653,6 @@ class ParseTemplate(object):
             logging.warning("Run '%s' does not have logging configured!" % name)
 
         return run
-
 
     def HandlePublisher(self, node, parent):
         params = []
@@ -2733,7 +2719,7 @@ class ParseTemplate(object):
             publisher.append(param)
             params.append([name, value])
 
-        code = "PeachXml_%s(%s)" % (publisherClass, ",".join(str(v) for _,v in params))
+        code = "PeachXml_%s(%s)" % (publisherClass, ",".join(str(v) for _, v in params))
 
         pub = eval(code, globals(), locals())
 
@@ -2741,11 +2727,10 @@ class ParseTemplate(object):
         pub.parent = parent
         return pub
 
-
     def HandleLogger(self, node, parent):
         params = {}
         logger = Logger(parent)
-        #logger.node = node
+        # logger.node = node
 
         # class
 
@@ -2798,7 +2783,7 @@ class ParseTemplate(object):
 
                 value = "'" + ret + "'"
 
-            #print "LoggeR: Adding %s:%s" % (PeachStr(name),PeachStr(value))
+            # print "LoggeR: Adding %s:%s" % (PeachStr(name),PeachStr(value))
             logger.append(param)
             params[PeachStr(name)] = PeachStr(value)
 
@@ -2806,7 +2791,6 @@ class ParseTemplate(object):
         pub = eval(code)
         pub.domLogger = logger
         return pub
-
 
     def HandleStateMachine(self, node, parent):
         if node.get("name") is None:
@@ -2908,7 +2892,7 @@ class ParseTemplate(object):
             action.type = 'connect'
 
         if (action.setXpath or action.valueXpath or action.valueLiteral) and (
-            action.type != 'slurp' and action.type != 'wait'):
+                action.type != 'slurp' and action.type != 'wait'):
             raise PeachException("Parser: Invalid attribute for Action were type != 'slurp'")
 
         if action.method is not None and action.type != 'call':
@@ -2936,7 +2920,7 @@ class ParseTemplate(object):
                 if action.type not in ['input', 'output', 'getprop']:
                     raise PeachException("Parser: DataModel is an invalid child of Action for this Action type")
 
-                #if child.get('ref') is None:
+                # if child.get('ref') is None:
                 #	raise PeachException("Parser: When DataModel is a child of Action it must have the ref attribute.")
 
                 if action.template is not None:
@@ -3013,7 +2997,7 @@ class ParseTemplate(object):
         for child in node.iterchildren():
             child_nodeName = split_ns(child.tag)[1]
             if child_nodeName == 'Template' or child_nodeName == 'DataModel':
-                #if child.get('ref') is None:
+                # if child.get('ref') is None:
                 #	raise PeachException("Parser: When Template is a child of ActionParam it must have the ref attribute.")
 
                 obj = self.HandleTemplate(child, param)
@@ -3092,16 +3076,20 @@ class ParseTemplate(object):
 
         return value
 
-
     def HandleParam(self, node, parent):
         param = Param(parent)
 
         if node.get("name") is None:
             raise PeachException(
-                "Parser: Param element missing name attribute.  Parent is [{}]".format(split_ns(node.getparent().tag)[1]))
+                "Parser: Param element missing name attribute.  Parent is [{}]".format(
+                    split_ns(node.getparent().tag)[1]))
 
         if node.get("value") is None:
-            raise PeachException("Parser: Param element missing value attribute.  Name is [{}].  Parent is [{}]".format(node.get("name"), split_ns(node.getparent().tag)[1]))
+            raise PeachException(
+                "Parser: Param element missing value attribute.  Name is [{}].  Parent is [{}]".format(node.get("name"),
+                                                                                                       split_ns(
+                                                                                                           node.getparent().tag)[
+                                                                                                           1]))
 
         if node.get("valueType") is None:
             valueType = "string"
@@ -3116,7 +3104,9 @@ class ParseTemplate(object):
             try:
                 value = "'''" + value + "'''"
             except TypeError:
-                raise PeachException("Parser: Failed converting param value to string.  Name is [{}].  Value is [{}].".format(name, value))
+                raise PeachException(
+                    "Parser: Failed converting param value to string.  Name is [{}].  Value is [{}].".format(name,
+                                                                                                             value))
 
         elif valueType == 'hex':
             ret = ''
@@ -3177,5 +3167,5 @@ class ParseTemplate(object):
 
         return hint
 
-from rlfuzz.Peach.Analyzers import *
 
+from rlfuzz.Peach.Analyzers import *

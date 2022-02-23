@@ -19,6 +19,7 @@ from rlfuzz.Peach.Engine.engine import Engine
 from rlfuzz.Peach.publisher import PublisherBuffer
 
 import rlfuzz.Peach as Peach
+
 PeachModule = Peach
 
 from copy import deepcopy
@@ -46,7 +47,7 @@ class Element(object):
     #: For generating unknown element names
     __CurNameNum = 0
 
-    def __init__(self, name = None, parent = None):
+    def __init__(self, name=None, parent=None):
         #: Name of Element, cannot include "."s
         self._name = name
         if not self._name:
@@ -204,11 +205,11 @@ class Element(object):
             stack.add(root)
         return root
 
-    def printDomMap(self, level = 0):
+    def printDomMap(self, level=0):
         """
         Print out a map of the dom.
         """
-        print("%s- %s [%s](%s)" % (("   "*level), self.name, self.elementType, str(self)[-9:]))
+        print("%s- %s [%s](%s)" % (("   " * level), self.name, self.elementType, str(self)[-9:]))
 
     def toXmlDom(self, parent, dict):
         """
@@ -331,7 +332,7 @@ class Element(object):
         """
 
         if node1.name != node2.name:
-            raise Exception("node1.name(%s) != node2.name(%s)" %(node1.name, node2.name))
+            raise Exception("node1.name(%s) != node2.name(%s)" % (node1.name, node2.name))
 
         if node1.elementType != node2.elementType:
             raise Exception("Element types don't match [%s != %s]" % (node1.elementType, node2.elementType))
@@ -413,7 +414,7 @@ class Element(object):
 
         return newSelf
 
-    def _FixParents(self, start = None, parent = None):
+    def _FixParents(self, start=None, parent=None):
         """
         Walk down from start and fix parent settings on children
         """
@@ -440,7 +441,6 @@ class Element(object):
         node = self
 
         while node.parent is not None:
-
             # We need to handle namespaces here!!!
             # TODO
             node = node.parent
@@ -460,11 +460,11 @@ class Element(object):
         ourIndex = self.parent._children.index(self)
 
         # Check for next child
-        if len(self.parent._children) <= (ourIndex+1):
+        if len(self.parent._children) <= (ourIndex + 1):
             return None
 
-        #sys.stderr.write("nextSibling: %d:%d\n" % (len(self.parent), (ourIndex+1)))
-        return self.parent._children[ourIndex+1]
+        # sys.stderr.write("nextSibling: %d:%d\n" % (len(self.parent), (ourIndex+1)))
+        return self.parent._children[ourIndex + 1]
 
     def previousSibling(self):
         """
@@ -481,9 +481,9 @@ class Element(object):
         if ourIndex == 0:
             return None
 
-        return self.parent._children[ourIndex-1]
+        return self.parent._children[ourIndex - 1]
 
-    def _setAttribute(self, node, name, value, default = None):
+    def _setAttribute(self, node, name, value, default=None):
         """
         Set an attribute on an XML Element.  We only set the
         attribute in the following cases:
@@ -501,6 +501,7 @@ class Element(object):
         node.set(name, str(value))
 
     GuidRegex = re.compile('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+
     def _xmlHadChild(self, child):
         """
         Verify that we should serialize child node.  Checks
@@ -519,11 +520,11 @@ class ElementWithChildren(Element):
     be accessed by name via self.children.name.
     """
 
-    def __init__(self, name = None, parent = None):
+    def __init__(self, name=None, parent=None):
         Element.__init__(self, name, parent)
-        self._children = []			#: List of children (in order)
-        self._childrenHash = {}		#: Dictionary of children (by name)
-        self.children = Empty()		#: Children object, has children as attributes by name
+        self._children = []  #: List of children (in order)
+        self._childrenHash = {}  #: Dictionary of children (by name)
+        self.children = Empty()  #: Children object, has children as attributes by name
         self.hasChildren = True
 
     def getByName(self, name):
@@ -539,14 +540,14 @@ class ElementWithChildren(Element):
 
         obj = node
         for i in range(1, len(names)):
-            if not obj.has_key(names[i]):
+            if names[i] not in obj:
                 return None
 
             obj = obj[names[i]]
 
         return obj
 
-    def getElementsByType(self, type, ret = None):
+    def getElementsByType(self, type, ret=None):
         """
         Will return array of a specific type
         in the tree starting with us.
@@ -564,19 +565,20 @@ class ElementWithChildren(Element):
 
         return ret
 
-    def printDomMap(self, level = 0):
+    def printDomMap(self, level=0):
         """
         Print out a map of the dom.
         """
         print("")
-        print("   "*level) + "+ %s [%s](%s)" % (self.name, self.elementType, str(self)[-9:])
+        print("   " * level) + "+ %s [%s](%s)" % (self.name, self.elementType, str(self)[-9:])
 
         for child in self:
             if isinstance(child, Element):
-                child.printDomMap(level+1)
+                child.printDomMap(level + 1)
 
                 if child.parent != self:
-                    raise Exception("Error: printDomMap: %s.parent != self : %s:%s " % (child.name, child.name, repr(child.parent)))
+                    raise Exception(
+                        "Error: printDomMap: %s.parent != self : %s:%s " % (child.name, child.name, repr(child.parent)))
 
     def verifyDomMap(self):
         """
@@ -585,7 +587,8 @@ class ElementWithChildren(Element):
         for child in self:
             if isinstance(child, Element):
                 if child.parent != self:
-                    raise Exception("Error: verifyDomMap: %s.parent != self : %s:%s " % (child.name, child.name, repr(child.parent)))
+                    raise Exception("Error: verifyDomMap: %s.parent != self : %s:%s " % (
+                    child.name, child.name, repr(child.parent)))
 
             if isinstance(child, ElementWithChildren):
                 child.verifyDomMap()
@@ -632,7 +635,7 @@ class ElementWithChildren(Element):
 
     def append(self, obj):
         # If we have the key we need to replace it
-        if self._childrenHash.has_key(obj.name):
+        if obj.name in self._childrenHash:
             self[obj.name] = obj
             obj.parent = self
             return
@@ -657,7 +660,7 @@ class ElementWithChildren(Element):
 
         self._children.insert(index, obj)
         if obj.name is not None:
-            #print "inserting ",obj.name
+            # print "inserting ",obj.name
             self._childrenHash[obj.name] = obj
             setattr(self.children, obj.name, obj)
 
@@ -674,8 +677,10 @@ class ElementWithChildren(Element):
         return None
 
     def has_key(self, name):
-        return self._childrenHash.has_key(name)
-
+        if name in self._childrenHash:
+            return True
+        else:
+            return False
 
     # Container emulation methods ############################
 
@@ -704,7 +709,7 @@ class ElementWithChildren(Element):
             oldObj = self._children[key]
             if oldObj.name is not None:
                 del self._childrenHash[oldObj.name]
-                #delattr(self.children, oldObj.name)
+                # delattr(self.children, oldObj.name)
 
             if value.name is not None:
                 self._childrenHash[value.name] = value
@@ -715,7 +720,7 @@ class ElementWithChildren(Element):
         else:
             if key in self._childrenHash:
                 # Existing item
-                inx = self._children.index( self._childrenHash[key] )
+                inx = self._children.index(self._childrenHash[key])
 
                 self._children[inx] = value
                 self._childrenHash[key] = value
@@ -755,11 +760,13 @@ class ElementWithChildren(Element):
     def __contains__(self, item):
         return self._children.__contains__(item)
 
+
 class Mutatable(ElementWithChildren):
     """
     To mark a DOM object as mutatable(fuzzable) or not
     """
-    def __init__(self, name = None, parent = None, isMutable = True):
+
+    def __init__(self, name=None, parent=None, isMutable=True):
         ElementWithChildren.__init__(self, name, parent)
 
         #: Can this object be changed by the mutators?
@@ -775,6 +782,7 @@ class Mutatable(ElementWithChildren):
 
         self.isMutable = value
 
+
 class DataElement(Mutatable):
     """
     Data elements compose the Data Model.  This is the base
@@ -784,11 +792,12 @@ class DataElement(Mutatable):
     isinstance(obj, DataElement) it is part of a data model.
     """
 
-    def __init__(self, name = None, parent = None):
+    def __init__(self, name=None, parent=None):
         ElementWithChildren.__init__(self, name, parent)
 
         if name is not None and (name.find(".") > -1 or name.find(":") > -1):
-            raise PeachException("Name '%s' contains characters not allowed in names such as period (.) or collen (:)" % name)
+            raise PeachException(
+                "Name '%s' contains characters not allowed in names such as period (.) or collen (:)" % name)
 
         #: Is this a ctypes pointer to something? (Defaults to False)
         self.isPointer = False
@@ -851,13 +860,13 @@ class DataElement(Mutatable):
         #: if element should be included in cracking.
         self.when = None
 
-        self._inInternalValue = False	#: Used to prevent recursion
+        self._inInternalValue = False  #: Used to prevent recursion
 
         # Attributes for elements part of an array
-        self.array = None			#: Name of array.  The origional name of the data element.
-        self.arrayPosition = None	#: Our position in the array.
-        self.arrayMinOccurs = None	#: The min occurences in the array
-        self.arrayMaxOccurs = None	#: The max occurences in the array
+        self.array = None  #: Name of array.  The origional name of the data element.
+        self.arrayPosition = None  #: Our position in the array.
+        self.arrayMinOccurs = None  #: The min occurences in the array
+        self.arrayMaxOccurs = None  #: The max occurences in the array
 
         #: Position in data stream item was parsed at
         self._pos = None
@@ -876,29 +885,40 @@ class DataElement(Mutatable):
 
     def get_DefaultValue(self):
         return self._defaultValue
+
     def set_DefaultValue(self, value):
         self._defaultValue = value
-        #self._currentValue = None
+        # self._currentValue = None
         self._value = None
         self._finalValue = None
+
     defaultValue = property(get_DefaultValue, set_DefaultValue, None)
+
     def get_CurrentValue(self):
         return self._currentValue
+
     def set_CurrentValue(self, value):
         self._currentValue = value
         self._value = None
         self._finalValue = None
+
     currentValue = property(get_CurrentValue, set_CurrentValue, None)
+
     def get_Value(self):
         return self._value
+
     def set_Value(self, value):
         self._value = value
         self._finalValue = None
+
     value = property(get_Value, set_Value, None)
+
     def get_FinalValue(self):
         return self._finalValue
+
     def set_FinalValue(self, value):
         self._finalValue = value
+
     finalValue = property(get_FinalValue, set_FinalValue, None)
 
     @property
@@ -921,6 +941,7 @@ class DataElement(Mutatable):
                 return 0
 
         return self._pos
+
     @pos.setter
     def pos(self, value):
         """
@@ -951,15 +972,17 @@ class DataElement(Mutatable):
             ##	return 0
 
         return self._possiblePos
+
     def set_possiblePos(self, value):
         """
         Setter for pos property
         """
         self._possiblePos = value
         return self._possiblePos
+
     possiblePos = property(get_possiblePos, set_possiblePos, None)
 
-    def getElementsByType(self, type, ret = None):
+    def getElementsByType(self, type, ret=None):
         """
         Will return an array all elements of a specific type
         in the tree starting with us.
@@ -1016,10 +1039,10 @@ class DataElement(Mutatable):
             obj.placement = self.placement.clone()
 
         for r in self.relations:
-            obj.relations.append( r.clone() )
+            obj.relations.append(r.clone())
 
         for h in self.hints:
-            obj.hints.append( h.clone() )
+            obj.hints.append(h.clone())
 
         obj.occurs = self.occurs
         obj._minOccurs = self._minOccurs
@@ -1043,7 +1066,6 @@ class DataElement(Mutatable):
         obj.fullNameDataModel = self.fullNameDataModel
 
         return obj
-
 
     def asCType(self):
         """
@@ -1092,7 +1114,7 @@ class DataElement(Mutatable):
         Remove any instance methods.
         """
 
-        #if hasattr(model, "__deepcopy__"):
+        # if hasattr(model, "__deepcopy__"):
         #	delattr(model, "__deepcopy__")
 
         if hasattr(model, "toXml") and (model.elementType == 'block' or model.elementType == 'namespace'):
@@ -1111,7 +1133,7 @@ class DataElement(Mutatable):
                 if isinstance(c, Element):
                     self._pickleRemoveInstanceMethods(c)
 
-    def setDefaults(self, data, dontCrack = False, mustPass = False):
+    def setDefaults(self, data, dontCrack=False, mustPass=False):
         """
         Set data elements defaultValue based on a Data object.
         """
@@ -1130,7 +1152,7 @@ class DataElement(Mutatable):
                 # Load pre-parsed peach file
                 print("[*] Loading model for: %s" % data.fileName)
 
-                fd = open(data.fileName+".peach", "rb+")
+                fd = open(data.fileName + ".peach", "rb+")
                 data = fd.read()
                 fd.close()
 
@@ -1155,10 +1177,10 @@ class DataElement(Mutatable):
                     parent = parent.parent
 
                 cracker = PeachModule.Engine.incoming.DataCracker(parent)
-                #cracker.haveAllData = True
+                # cracker.haveAllData = True
                 startTime = time.time()
                 cracker.crackData(self, buff, "setDefaultValue")
-                #if mustPass and not cracker.crackPassed:
+                # if mustPass and not cracker.crackPassed:
                 #	raise PeachException("Error, file did not properly parse.")
                 logging.info("Total time to crack data: %.2f" % (time.time() - startTime))
                 logging.info("Building relation cache.")
@@ -1265,12 +1287,13 @@ class DataElement(Mutatable):
 
                             lastobj = obj.getArrayElementAt(newobj.arrayPosition - 1)
                             index = obj.parent.index(lastobj)
-                            obj.parent.insert(index+1, newobj)
+                            obj.parent.insert(index + 1, newobj)
                             obj = newobj
 
                         # Are we trying to expand by more then 1?
                         elif arrayCount < idx:
-                            raise PeachException("Error: Attempting to expand array by more then one element. [%s]" % field.name)
+                            raise PeachException(
+                                "Error: Attempting to expand array by more then one element. [%s]" % field.name)
 
                         # Already expanded, just get correct index
                         else:
@@ -1300,12 +1323,11 @@ class DataElement(Mutatable):
                     for child in remove:
                         del obj.parent[child.name]
 
-
             # If obj is a number, and field type is hex we
             # need todo some mojo
             if field.valueType == 'hex' \
-                and (isinstance(obj, Number) or isinstance(obj, Flags)
-                     or isinstance(obj, Flag)):
+                    and (isinstance(obj, Number) or isinstance(obj, Flags)
+                         or isinstance(obj, Flag)):
 
                 # Convert hex to number
                 hexString = ""
@@ -1377,7 +1399,7 @@ class DataElement(Mutatable):
 
             if r.type != 'when':
                 ofStr = r.getOfElement().getFullnameInDataModel()
-                if not self.relationOfCache.has_key(ofStr):
+                if ofStr not in self.relationOfCache:
                     self.relationOfCache[ofStr] = []
 
                 if rStr not in self.relationOfCache[ofStr]:
@@ -1385,7 +1407,6 @@ class DataElement(Mutatable):
 
             if rStr not in self.relationCache:
                 self.relationCache.append(rStr)
-
 
     def get_minOccurs(self):
         minOccurs = self._minOccurs
@@ -1426,7 +1447,7 @@ class DataElement(Mutatable):
     #: Maximum occurences (property)
     maxOccurs = property(get_maxOccurs, set_maxOccurs)
 
-    def getAllChildDataElements(self, ret = None):
+    def getAllChildDataElements(self, ret=None):
         """
         Get all children data elements.  Recursive
         """
@@ -1452,7 +1473,7 @@ class DataElement(Mutatable):
 
         return False
 
-    def _HasSizeofRelation(self, node = None):
+    def _HasSizeofRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1463,7 +1484,7 @@ class DataElement(Mutatable):
 
         return False
 
-    def _HasOffsetRelation(self, node = None):
+    def _HasOffsetRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1474,7 +1495,7 @@ class DataElement(Mutatable):
 
         return False
 
-    def _GetOffsetRelation(self, node = None):
+    def _GetOffsetRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1485,7 +1506,7 @@ class DataElement(Mutatable):
 
         return False
 
-    def _GetSizeofRelation(self, node = None):
+    def _GetSizeofRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1496,7 +1517,7 @@ class DataElement(Mutatable):
 
         return None
 
-    def GetWhenRelation(self, node = None):
+    def GetWhenRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1507,7 +1528,7 @@ class DataElement(Mutatable):
 
         return None
 
-    def HasWhenRelation(self, node = None):
+    def HasWhenRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1518,7 +1539,7 @@ class DataElement(Mutatable):
 
         return False
 
-    def _HasCountofRelation(self, node = None):
+    def _HasCountofRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1529,7 +1550,7 @@ class DataElement(Mutatable):
 
         return False
 
-    def _GetCountofRelation(self, node = None):
+    def _GetCountofRelation(self, node=None):
 
         if node is None:
             node = self
@@ -1586,7 +1607,7 @@ class DataElement(Mutatable):
         if name.find(".") > -1:
             # Handle foo.bar.wee
             parentName = name[:name.rfind(".")]
-            arrayName = name[name.rfind(".")+1:]
+            arrayName = name[name.rfind(".") + 1:]
 
             parent = self.find(parentName)
             if parent is None:
@@ -1641,7 +1662,7 @@ class DataElement(Mutatable):
 
     def _findDataElementByName(self, names):
         for block in self._findAllBlocksGoingUp():
-            #print "findDataElementByName: Looking for %s in %s" % (name, block.name)
+            # print "findDataElementByName: Looking for %s in %s" % (name, block.name)
             for node in self.__findDataElementByName(block, names[0]):
                 obj = self._checkDottedName(node, names)
                 if obj is not None:
@@ -1680,7 +1701,6 @@ class DataElement(Mutatable):
                 obj = self._checkDottedName(self.getRootOfDataMap(), names)
                 if obj is not None:
                     return obj
-
 
             ret = self._findDataElementByName(names)
 
@@ -1738,9 +1758,9 @@ class DataElement(Mutatable):
             yield node
 
         # look at each child
-        if node._childrenHash.has_key(name):
+        if name in node._childrenHash:
             yield node[name]
-        #else:
+        # else:
         #    for c in node:
         #        print "%s: %s != %s" % (node.name, c.name, name)
 
@@ -1765,13 +1785,13 @@ class DataElement(Mutatable):
 
         obj = node
         for i in range(1, len(names)):
-            if not obj.has_key(names[i]):
-                #print "_checkDottedName: %s not found" % (names[i])
-                #for child in obj:
+            if names[i] not in obj:
+                # print "_checkDottedName: %s not found" % (names[i])
+                # for child in obj:
                 #	print "_checkDottedNames: Have:", child.name
                 #	if child.parent != obj:
                 #		print "_checkDottedNames: BAD PARRENT"
-                #for key in obj._childrenHash.keys():
+                # for key in obj._childrenHash.keys():
                 #	print "_checkDottedName: Key:", key
                 return None
 
@@ -1801,19 +1821,18 @@ class DataElement(Mutatable):
         names = name.split(".")
 
         if self.name != names[0]:
-            #print "[%s] != [%s]" % (self.name, names[0])
+            # print "[%s] != [%s]" % (self.name, names[0])
             return None
 
         obj = self
         for i in range(1, len(names)):
-            if not obj.has_key(names[i]):
-                #print "no [%s]" % (names[i])
+            if names[i] not in obj:
+                # print "no [%s]" % (names[i])
                 return None
 
             obj = obj[names[i]]
 
         return obj
-
 
     def getRelationOfThisElement(self, type):
         """
@@ -1868,7 +1887,7 @@ class DataElement(Mutatable):
                 root = self.getRootOfDataMap()
                 name = self.getFullnameInDataModel()
 
-                if root.relationOfCache.has_key(name):
+                if name in root.relationOfCache:
                     for r in root.relationOfCache[name]:
                         r = self.find(r)
                         if r is not None and (type is None or r.type == type):
@@ -1887,7 +1906,7 @@ class DataElement(Mutatable):
             self._unFixRealParent(self)
 
     def getRelationByName(self, name):
-        relName = name[name.rfind(".")+1:]
+        relName = name[name.rfind(".") + 1:]
         parentName = name[:name.rfind(".")]
         obj = self.getRootOfDataMap().getDataElementByName(parentName)
 
@@ -1926,18 +1945,18 @@ class DataElement(Mutatable):
                     if rel.type == 'when' or rel.of is None or not rel.of.endswith(self.name):
                         continue
 
-                    #print rel.of
+                    # print rel.of
                     relations.append(rel)
 
             return relations
 
         self._fixRealParent(self)
         if self.relationCache is not None:
-            #print "Using relation cache!"
+            # print "Using relation cache!"
             root = self.getRootOfDataMap()
             name = self.getFullnameInDataModel()
 
-            if root.relationOfCache.has_key(name):
+            if name in root.relationOfCache:
                 for r in root.relationOfCache[name]:
                     r = self.getRelationByName(r)
                     if r is not None:
@@ -1974,7 +1993,7 @@ class DataElement(Mutatable):
         names = name.split('.')
         return names[-1]
 
-    def _genRelationsInDataModelFromHere(self, node = None, useCache = True):
+    def _genRelationsInDataModelFromHere(self, node=None, useCache=True):
         """
         Instead of returning all relations starting with
         root we will walk up looking for relations.
@@ -2003,7 +2022,7 @@ class DataElement(Mutatable):
 
                 cur = cur.parent
 
-    def _getAllRelationsInDataModel(self, node = None, useCache = True):
+    def _getAllRelationsInDataModel(self, node=None, useCache=True):
         """
         Generator that gets all relations in data model.
         """
@@ -2015,7 +2034,7 @@ class DataElement(Mutatable):
         if useCache and isinstance(node, DataElement) and node.relationCache is not None:
             root = self.getRootOfDataMap()
             for s in node.relationCache:
-                relName = s[s.rfind(".")+1:]
+                relName = s[s.rfind(".") + 1:]
                 parentName = s[:s.rfind(".")]
                 obj = root.getDataElementByName(parentName)
 
@@ -2059,7 +2078,7 @@ class DataElement(Mutatable):
                 if int(c.arrayPosition) > maxPos:
                     maxPos = int(c.arrayPosition)
 
-        return maxPos+1
+        return maxPos + 1
 
     def getArrayElementAt(self, num):
         """
@@ -2094,10 +2113,10 @@ class DataElement(Mutatable):
         rel = self.getRelationOfThisElement('count')
         if rel is not None:
             try:
-                #print "of:  ",self.getFullname()
-                #print "from:",rel.parent.getFullname()
-                #print rel.of
-                #print rel.From
+                # print "of:  ",self.getFullname()
+                # print "from:",rel.parent.getFullname()
+                # print rel.of
+                # print rel.From
                 cnt = int(rel.parent.getInternalValue())
 
                 if cnt < self.minOccurs:
@@ -2162,11 +2181,11 @@ class DataElement(Mutatable):
                 # the element to expand into an array?
                 ofElement.getValue()
 
-                #print "getRelationValue.count: ofElement:", ofElement.getFullname()
+                # print "getRelationValue.count: ofElement:", ofElement.getFullname()
                 value = ofElement.getCount()
                 value = relation.setValue(value)
-                #print "getRelationValue.count: getCount:", value
-                #print "COUNT REALTION %s of %s: " % (relation.parent.name, relation.of), value
+                # print "getRelationValue.count: getCount:", value
+                # print "COUNT REALTION %s of %s: " % (relation.parent.name, relation.of), value
 
             finally:
                 self._inInternalValue = False
@@ -2194,7 +2213,7 @@ class DataElement(Mutatable):
 
         return value
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
         """
         Get the value of this data element pre-transformers.
         """
@@ -2221,7 +2240,7 @@ class DataElement(Mutatable):
         # Default SLOW version
         return len(self.getValue())
 
-    def getValue(self, sout = None):
+    def getValue(self, sout=None):
         """
         Get the value of this data element.
         """
@@ -2238,19 +2257,19 @@ class DataElement(Mutatable):
         ## If we have a cached value for ourselves, use it!
         if self.elementType not in ['template', 'block', 'choice', 'flags',
                                     'xmlelement', 'xmlattribute', 'asn1type', 'custom']:
-            if self.value is not None and self.finalValue is None\
-               and self.currentValue is None and self.fixup is None\
-            and not self.hasRelation():
+            if self.value is not None and self.finalValue is None \
+                    and self.currentValue is None and self.fixup is None \
+                    and not self.hasRelation():
 
                 if sout is not None:
                     sout.write(self.value)
 
-                #print "getValue(%s): Using self.value" % self.name
+                # print "getValue(%s): Using self.value" % self.name
 
                 return self.value
 
         if self.transformer is not None:
-            #print "getValue(%s): Transformer will be applied" % self.name
+            # print "getValue(%s): Transformer will be applied" % self.name
 
             value = self.getRawValue()
             value = self.transformer.transformer.encode(value)
@@ -2259,21 +2278,20 @@ class DataElement(Mutatable):
                 sout.write(value)
 
         else:
-            #print "getValue(%s): Using getrawvalue" % self.name
+            # print "getValue(%s): Using getrawvalue" % self.name
             value = self.getRawValue(sout)
-            #print "getValue(%s): Using getrawvalue: %s" % (self.name, type(value))
-
+            # print "getValue(%s): Using getrawvalue: %s" % (self.name, type(value))
 
         # See if we need to repeat ourselvs.
         if not self.isArray():
             count = self.getCount()
             if count > 1:
-                #print "getValue(%s): Item is array, %d" % (self.name, count)
+                # print "getValue(%s): Item is array, %d" % (self.name, count)
                 origValue = value
                 value *= count
 
                 if sout is not None:
-                    sout.write(origValue * (count-1))
+                    sout.write(origValue * (count - 1))
 
         if value is None:
             raise Exception("value is None for %s type %s" % (self.name, self.elementType))
@@ -2317,7 +2335,7 @@ class DataElement(Mutatable):
         self.currentValue = None
         self.value = None
 
-    def resetDataModel(self, node = None):
+    def resetDataModel(self, node=None):
         """
         Reset the entire data model.
         """
@@ -2340,8 +2358,8 @@ class DataElement(Mutatable):
         to deal with, so keep going until we find no more.
         """
 
-        #print "---> FIX REAL PARENT <-----", node
-        #print traceback.format_stack()
+        # print "---> FIX REAL PARENT <-----", node
+        # print traceback.format_stack()
 
         while True:
             # 1. Find root
@@ -2353,7 +2371,7 @@ class DataElement(Mutatable):
             # 2. Check if has a realParent
 
             if hasattr(root, 'realParent') and root.realParent is not None:
-                #print "FIXING:", root
+                # print "FIXING:", root
                 root.parent = root.realParent
             else:
                 break
@@ -2371,8 +2389,8 @@ class DataElement(Mutatable):
         root.
         """
 
-        #print "---> UN-FIX REAL PARENT <-----", node
-        #print traceback.format_stack()
+        # print "---> UN-FIX REAL PARENT <-----", node
+        # print traceback.format_stack()
 
         parents = [node]
 
@@ -2385,17 +2403,17 @@ class DataElement(Mutatable):
             # 1. Look for fake root
             if hasattr(parent, 'realParent') and parent.parent is not None:
                 # 2. Remove parent link
-                #print "UNFIXING:", parent
+                # print "UNFIXING:", parent
                 parent.parent = None
 
-    def	calcLength(self):
+    def calcLength(self):
         """
         Calculate length
         """
 
         environment = {
-            'self' : self
-            }
+            'self': self
+        }
 
         try:
             self._fixRealParent(self)
@@ -2403,12 +2421,14 @@ class DataElement(Mutatable):
         finally:
             self._unFixRealParent(self)
 
+
 class Transformer(ElementWithChildren):
     """
     The Trasnfomer DOM object.  Should only be a child of
     a data element.
     """
-    def __init__(self, parent, transformer = None):
+
+    def __init__(self, parent, transformer=None):
         ElementWithChildren.__init__(self, None, parent)
         self.elementType = 'transformer'
 
@@ -2418,7 +2438,7 @@ class Transformer(ElementWithChildren):
         # Class string used to create transformer instance
         self.classStr = None
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
         if obj is None:
             obj = Transformer(self.parent, self.transformer)
 
@@ -2429,18 +2449,19 @@ class Transformer(ElementWithChildren):
     def changesSize(self):
         return self.transformer.changesSize()
 
+
 class Fixup(ElementWithChildren):
     """
     Fixup DOM element.  Child of data elements only.
     """
-    def __init__(self, parent, fixup = None):
+
+    def __init__(self, parent, fixup=None):
         ElementWithChildren.__init__(self, None, parent)
         self.elementType = 'fixup'
         self.classStr = None
         self.fixup = fixup
 
-    def clone(self, obj = None):
-
+    def clone(self, obj=None):
         if obj is None:
             obj = Fixup(self.parent, self.fixup)
 
@@ -2454,14 +2475,14 @@ class Placement(ElementWithChildren):
     """
     Indicates were a block goes after cracking.
     """
+
     def __init__(self, parent):
         ElementWithChildren.__init__(self, None, parent)
         self.elementType = 'placement'
         self.after = None
         self.before = None
 
-    def clone(self, obj = None):
-
+    def clone(self, obj=None):
         if obj is None:
             obj = Placement(self.parent)
 
@@ -2470,6 +2491,7 @@ class Placement(ElementWithChildren):
         obj.before = self.before
 
         return obj
+
 
 class Param(ElementWithChildren):
     def __init__(self, parent):
@@ -2482,6 +2504,7 @@ class Peach(ElementWithChildren):
     """
     This is our root node container.
     """
+
     def __init__(self):
         ElementWithChildren.__init__(self, 'peach', None)
 
@@ -2492,7 +2515,7 @@ class Peach(ElementWithChildren):
 
 
 class Test(ElementWithChildren):
-    def __init__(self, name, parent = None):
+    def __init__(self, name, parent=None):
         ElementWithChildren.__init__(self, name, parent)
 
         self.elementType = 'test'
@@ -2520,7 +2543,6 @@ class Test(ElementWithChildren):
 
         return ret
 
-
     def markMutatableElements(self, node):
         if len(self.mutatables) == 0:
             return
@@ -2536,7 +2558,8 @@ class Test(ElementWithChildren):
                 xnodes = xmlDom.xpath(xpath)
                 print("XPATH: %s # of nodes: %s" % (xpath, str(len(xnodes))))
                 if len(xnodes) == 0:
-                    print("Warning: XPath:[%s] must return at least an XNode. Please check your references or xpath declarations." % xpath)
+                    print(
+                        "Warning: XPath:[%s] must return at least an XNode. Please check your references or xpath declarations." % xpath)
                     continue
 
                 for node in xnodes:
@@ -2552,8 +2575,9 @@ class Test(ElementWithChildren):
             except SyntaxError:
                 raise PeachException("Invalid xpath string: %s" % xpath)
 
+
 class Run(ElementWithChildren):
-    def __init__(self, name, parent = None):
+    def __init__(self, name, parent=None):
         ElementWithChildren.__init__(self, name, parent)
         self.elementType = 'run'
         self.description = None
@@ -2575,7 +2599,7 @@ class Run(ElementWithChildren):
 
 
 class Agent(ElementWithChildren):
-    def __init__(self, name, parent = None):
+    def __init__(self, name, parent=None):
         ElementWithChildren.__init__(self, name, parent)
         self.elementType = 'agent'
         self.description = None
@@ -2599,19 +2623,21 @@ class Agent(ElementWithChildren):
 
         for child in self:
             if child.elementType == 'import':
-                p.append({'import': child.importStr, 'from' : child.fromStr})
+                p.append({'import': child.importStr, 'from': child.fromStr})
 
         if len(p) == 0:
             return None
 
         return p
 
+
 class Monitor(ElementWithChildren):
-    def __init__(self, name, parent = None):
+    def __init__(self, name, parent=None):
         ElementWithChildren.__init__(self, name, parent)
         self.elementType = 'monitor'
         self.classStr = None
         self.params = {}
+
 
 #############################################################################
 ## Data Generating Elements
@@ -2632,7 +2658,7 @@ class Template(DataElement):
         self.length = None
         self.lengthType = None
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = Template(self.name)
@@ -2644,7 +2670,7 @@ class Template(DataElement):
         obj.lengthType = self.lengthType
 
         for c in self:
-            obj.append( c.clone() )
+            obj.append(c.clone())
 
         return obj
 
@@ -2755,7 +2781,7 @@ class Template(DataElement):
 
         return self.length
 
-    def getValue(self, sout = None):
+    def getValue(self, sout=None):
         """
         Template needs a custom getValue method!
         """
@@ -2788,7 +2814,7 @@ class Template(DataElement):
         # Return false
         return False
 
-    def getInternalValue(self, sout = None):
+    def getInternalValue(self, sout=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -2800,7 +2826,7 @@ class Template(DataElement):
         @param	sout: Output stream
         """
 
-        #print "getInternalValue(%s)" % self.name
+        # print "getInternalValue(%s)" % self.name
         value = ""
 
         # 0. If using a stream store our location
@@ -2810,7 +2836,7 @@ class Template(DataElement):
         # 1. Override with currentValue
 
         if self.currentValue is not None:
-            #print "getInternalValue(%s): using currentValue" % self.name
+            # print "getInternalValue(%s): using currentValue" % self.name
 
             value = self.currentValue
             if sout is not None:
@@ -2848,7 +2874,7 @@ class Template(DataElement):
 
         return value
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
         """
         Get value for this data element.
 
@@ -2877,6 +2903,7 @@ class Choice(DataElement):
     """
     Choice, chooses one or emore sub-elements
     """
+
     def __init__(self, name, parent):
         """
         Don't put too much logic here.  See HandleBlock in the parser.
@@ -2890,7 +2917,7 @@ class Choice(DataElement):
         #: Used by cracker to optimize choice cracking
         self.choiceCache = (False, 0, None)
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = Choice(self.name, self.parent)
@@ -2903,7 +2930,7 @@ class Choice(DataElement):
         obj.lengthType = self.lengthType
 
         for c in self:
-            obj.append( c.clone() )
+            obj.append(c.clone())
 
         return obj
 
@@ -2951,8 +2978,7 @@ class Choice(DataElement):
 
         return self.length
 
-
-    def SelectedElement(self, value = None):
+    def SelectedElement(self, value=None):
 
         if value is not None:
             self.currentElement = self[value]
@@ -2980,7 +3006,7 @@ class Choice(DataElement):
         # Return false
         return False
 
-    def getInternalValue(self, sout = None):
+    def getInternalValue(self, sout=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -2990,7 +3016,7 @@ class Choice(DataElement):
         """
         return self.getRawValue(sout)
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
 
         value = ""
         if self.currentValue is not None:
@@ -3015,6 +3041,7 @@ class Choice(DataElement):
             raise Exception("Value should not be null or string!")
 
         return value
+
 
 class Block(DataElement):
     """
@@ -3045,7 +3072,7 @@ class Block(DataElement):
 
         return node
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = Block(self.name, self.parent)
@@ -3057,7 +3084,7 @@ class Block(DataElement):
         obj.lengthType = self.lengthType
 
         for c in self:
-            obj.append( c.clone() )
+            obj.append(c.clone())
 
         if obj.getValue() != self.getValue():
             print("Value missmatch")
@@ -3080,7 +3107,7 @@ class Block(DataElement):
         for c in self:
             if isinstance(c, DataElement):
                 cValue = c.asCType()
-                fields.append( (c.name, type(cValue) ) )
+                fields.append((c.name, type(cValue)))
                 values.append((c.name, cValue))
 
         exec("BlockTempClass%d._fields_ = fields" % ctypeClassName)
@@ -3111,7 +3138,7 @@ class Block(DataElement):
         for c in self:
             if isinstance(c, DataElement):
                 cValue = c.asCType()
-                fields.append( (c.name, type(cValue) ) )
+                fields.append((c.name, type(cValue)))
                 values.append((c.name, cValue))
 
         exec("BlockTempClass%d._fields_ = fields" % ctypeClassName)
@@ -3169,7 +3196,7 @@ class Block(DataElement):
         # Return false
         return False
 
-    def getInternalValue(self, sout = None):
+    def getInternalValue(self, sout=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -3181,7 +3208,7 @@ class Block(DataElement):
         @param	sout: Output stream
         """
 
-        #print "Block.getInternalValue(%s)" % self.name
+        # print "Block.getInternalValue(%s)" % self.name
         value = ""
 
         # 0. If using a stream store our location
@@ -3228,11 +3255,11 @@ class Block(DataElement):
             for c in self:
                 if isinstance(c, DataElement):
                     try:
-                        #print "Block.getInternalValue(%s): Getting child value" % self.name
+                        # print "Block.getInternalValue(%s): Getting child value" % self.name
                         value += c.getValue(stringBuffer)
 
                     except:
-                        #print "value: [%s]" % repr(value)
+                        # print "value: [%s]" % repr(value)
                         print("c.name: %s" % c.name)
                         print("---------------")
                         raise
@@ -3247,7 +3274,7 @@ class Block(DataElement):
                         value += c.getValue(stringBuffer)
 
                     except:
-                        #print "value: [%s]" % repr(value)
+                        # print "value: [%s]" % repr(value)
                         print("c.name: %s" % c.name)
                         print("---------------")
                         raise
@@ -3255,7 +3282,7 @@ class Block(DataElement):
         # 3. Fixup
 
         if self.fixup is not None:
-            #print "Block.getInternalValue(%s): Using fixup" % self.name
+            # print "Block.getInternalValue(%s): Using fixup" % self.name
             self.fixup.fixup.context = self
             ret = self.fixup.fixup.do_fixup()
             if ret is not None:
@@ -3268,7 +3295,7 @@ class Block(DataElement):
 
         return value
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
         """
         Get value for this data element.
 
@@ -3314,7 +3341,7 @@ class Number(DataElement):
         self.generatedValue = None
         self.insideRelation = False
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = Number(self.name, self.parent)
@@ -3335,8 +3362,10 @@ class Number(DataElement):
             return Number.defaultEndian
 
         return self._endian
+
     def setEndian(self, value):
         self._endian = value
+
     endian = property(getEndian, setEndian, None)
 
     def asCType(self):
@@ -3367,7 +3396,7 @@ class Number(DataElement):
         if self.transformer is not None:
             return len(self.getValue())
 
-        return self.size/8
+        return self.size / 8
 
     def getMinValue(self):
         """
@@ -3377,20 +3406,20 @@ class Number(DataElement):
         if not self.signed:
             return 0
 
-        max = int('FF'*int(self.size/8), 16)
+        max = int('FF' * int(self.size / 8), 16)
         return 0 - max
 
     def getMaxValue(self):
         """
         Get the maximum value for this number.
         """
-        max = int('FF'*int(self.size/8), 16)
+        max = int('FF' * int(self.size / 8), 16)
         if self.signed:
-            return max/2
+            return max / 2
 
         return max
 
-    def getInternalValue(self, sout = None):
+    def getInternalValue(self, sout=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -3499,7 +3528,7 @@ class Number(DataElement):
 
         return 0
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
 
         value = self.getInternalValue()
         if value == '':
@@ -3512,12 +3541,14 @@ class Number(DataElement):
 
         return ret
 
+
 try:
     from pyasn1.type import univ, char, useful
     import pyasn1.codec.ber.encoder
     import pyasn1.codec.cer.encoder
     import pyasn1.codec.der.encoder
     from pyasn1.type import tag
+
 
     class Asn1Type(DataElement):
         """
@@ -3531,52 +3562,52 @@ try:
         ASN1_ENCODE = ["ber", "cer", "der"]
 
         ASN1_MAP = {
-            "BitString":univ.BitString,
-            "Boolean":univ.Boolean,
-            "Choice":univ.Choice,
-            "Enumerated":univ.Enumerated,
-            "Integer":univ.Integer,
-            "Null":univ.Null,
-            "ObjectIdentifier":univ.ObjectIdentifier,
-            "OctetString":univ.OctetString,
-            "Real":univ.Real,
-            "Sequence":univ.Sequence,
-            "SequenceAndSetBase":univ.SequenceAndSetBase,
-            "SequenceOf":univ.SequenceOf,
-            "Set":univ.Set,
-            "SetOf":univ.SetOf,
-            "UTF8String":char.UTF8String,
-            "NumericString":char.NumericString,
-            "PrintableString":char.PrintableString,
-            "TeletexString":char.TeletexString,
-            "VideotexString":char.VideotexString,
-            "IA5String":char.IA5String,
-            "GraphicString":char.GraphicString,
-            "VisibleString":char.VisibleString,
-            "GeneralString":char.GeneralString,
-            "UniversalString":char.UniversalString,
-            "BMPString":char.BMPString,
-            "GeneralizedTime":useful.GeneralizedTime,
-            "UTCTime":useful.UTCTime,
-            }
+            "BitString": univ.BitString,
+            "Boolean": univ.Boolean,
+            "Choice": univ.Choice,
+            "Enumerated": univ.Enumerated,
+            "Integer": univ.Integer,
+            "Null": univ.Null,
+            "ObjectIdentifier": univ.ObjectIdentifier,
+            "OctetString": univ.OctetString,
+            "Real": univ.Real,
+            "Sequence": univ.Sequence,
+            "SequenceAndSetBase": univ.SequenceAndSetBase,
+            "SequenceOf": univ.SequenceOf,
+            "Set": univ.Set,
+            "SetOf": univ.SetOf,
+            "UTF8String": char.UTF8String,
+            "NumericString": char.NumericString,
+            "PrintableString": char.PrintableString,
+            "TeletexString": char.TeletexString,
+            "VideotexString": char.VideotexString,
+            "IA5String": char.IA5String,
+            "GraphicString": char.GraphicString,
+            "VisibleString": char.VisibleString,
+            "GeneralString": char.GeneralString,
+            "UniversalString": char.UniversalString,
+            "BMPString": char.BMPString,
+            "GeneralizedTime": useful.GeneralizedTime,
+            "UTCTime": useful.UTCTime,
+        }
 
         ASN1_TAG_CLASS_MAP = {
-            "universal" : 0x00,
-            "application" : 0x40,
-            "context" : 0x80,
-            "private" : 0xc0,
-            }
+            "universal": 0x00,
+            "application": 0x40,
+            "context": 0x80,
+            "private": 0xc0,
+        }
 
         ASN1_TAG_TYPE_MAP = {
-            "simple" : 0x00,
-            "constructed" : 0x20,
-            }
+            "simple": 0x00,
+            "constructed": 0x20,
+        }
 
         ASN1_TAG_CAT_MAP = {
-            "implicit":0x01,
-            "explicit":0x02,
-            "untagged":0x04,
-            }
+            "implicit": 0x01,
+            "explicit": 0x02,
+            "untagged": 0x04,
+        }
 
         def __init__(self, name, parent):
             DataElement.__init__(self, name, parent)
@@ -3591,7 +3622,7 @@ try:
             self.tagCategory = None
             self.tagNumber = None
 
-        def clone(self, obj = None):
+        def clone(self, obj=None):
 
             if obj is None:
                 obj = Asn1Type(self.name, self.parent)
@@ -3611,7 +3642,7 @@ try:
 
         def int2bin(self, n, count=32):
             """returns the binary of integer n, using count number of digits"""
-            return "".join([str((n >> y) & 1) for y in range(count-1, -1, -1)])
+            return "".join([str((n >> y) & 1) for y in range(count - 1, -1, -1)])
 
         def blob2bin(self, data):
             ret = ""
@@ -3620,7 +3651,7 @@ try:
 
             return ret
 
-        def getInternalValue(self, sout = None, parent = None):
+        def getInternalValue(self, sout=None, parent=None):
             """
             Return the internal value of this date element.  This
             value comes before any modifications such as packing,
@@ -3657,7 +3688,7 @@ try:
                         value = c.getValue()
 
                 if value is not None:
-                    #if (self.objType == int or self.objType == long):
+                    # if (self.objType == int or self.objType == long):
                     #	if type(value) not in [int, long]:
                     #		try:
                     #			value = long(value)
@@ -3667,33 +3698,33 @@ try:
                     try:
                         if self.tagNumber is not None:
                             if self.tagCategory == "implicit":
-                                tagSet=self.ASN1_MAP[self.asn1Type].tagSet.tagImplicitly(
+                                tagSet = self.ASN1_MAP[self.asn1Type].tagSet.tagImplicitly(
                                     tag.Tag(self.tagClass, self.tagFormat, self.tagNumber))
                             else:
-                                tagSet=self.ASN1_MAP[self.asn1Type].tagSet.tagExplicitly(
+                                tagSet = self.ASN1_MAP[self.asn1Type].tagSet.tagExplicitly(
                                     tag.Tag(self.tagClass, self.tagFormat, self.tagNumber))
 
-                            asn1Obj = self.ASN1_MAP[self.asn1Type](value, tagSet = tagSet)
+                            asn1Obj = self.ASN1_MAP[self.asn1Type](value, tagSet=tagSet)
 
                         else:
                             asn1Obj = self.ASN1_MAP[self.asn1Type](value)
                     except:
-                        #raise SoftException("Error building asn.1 obj")
+                        # raise SoftException("Error building asn.1 obj")
                         print(sys.exc_info())
                         raise PeachException("Error building asn.1 obj")
 
                 else:
                     try:
-                        #asn1Obj = self.ASN1_MAP[self.asn1Type](self.asnTagSet, self.asn1Spec)
+                        # asn1Obj = self.ASN1_MAP[self.asn1Type](self.asnTagSet, self.asn1Spec)
                         if self.tagNumber is not None:
                             if self.tagCategory == "implicit":
-                                tagSet=self.ASN1_MAP[self.asn1Type].tagSet.tagImplicitly(
+                                tagSet = self.ASN1_MAP[self.asn1Type].tagSet.tagImplicitly(
                                     tag.Tag(self.tagClass, self.tagFormat, self.tagNumber))
                             else:
-                                tagSet=self.ASN1_MAP[self.asn1Type].tagSet.tagExplicitly(
+                                tagSet = self.ASN1_MAP[self.asn1Type].tagSet.tagExplicitly(
                                     tag.Tag(self.tagClass, self.tagFormat, self.tagNumber))
 
-                            asn1Obj = self.ASN1_MAP[self.asn1Type](tagSet = tagSet)
+                            asn1Obj = self.ASN1_MAP[self.asn1Type](tagSet=tagSet)
 
                         else:
                             asn1Obj = self.ASN1_MAP[self.asn1Type]()
@@ -3711,7 +3742,7 @@ try:
                     encoder = eval("pyasn1.codec.%s.encoder" % self.encodeType)
 
                     try:
-                        #print asn1Obj
+                        # print asn1Obj
                         bin = encoder.encode(asn1Obj)
                     except:
                         print(self.encodeType)
@@ -3720,7 +3751,7 @@ try:
                         print(sys.exc_info())
                         raise SoftException("Error encoding asn.1 obj")
 
-                    #print asn1Obj
+                    # print asn1Obj
 
                     return bin
 
@@ -3732,11 +3763,12 @@ try:
                 print("Warning, ASN.1 Failed to emmit, this is OK after first iteration.")
                 return ""
 
-        def getRawValue(self, sout = None, parent = None):
+        def getRawValue(self, sout=None, parent=None):
             return self.getInternalValue(sout, parent)
 
 except:
     pass
+
 
 class XmlElement(DataElement):
     """
@@ -3784,7 +3816,7 @@ class XmlElement(DataElement):
 
         return node
 
-    def getInternalValue(self, sout = None, parent = None):
+    def getInternalValue(self, sout=None, parent=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -3826,7 +3858,7 @@ class XmlElement(DataElement):
 
             elif isinstance(c, DataElement):
                 value = c.getValue().decode('latin-1').encode('utf8')
-                #value = c.getValue()
+                # value = c.getValue()
                 if len(node) > 0:
                     node[-1].tail = value
                 else:
@@ -3838,14 +3870,15 @@ class XmlElement(DataElement):
                 encoding = "utf8"
                 unistr = etree.tostring(parent, encoding="unicode")
                 return unistr.encode(encoding, "xmlcharrefreplace")
-                #return unistr
+                # return unistr
             except:
                 return u""
 
         return None
 
-    def getRawValue(self, sout = None, parent = None):
+    def getRawValue(self, sout=None, parent=None):
         return self.getInternalValue(sout, parent)
+
 
 class XmlAttribute(DataElement):
     """
@@ -3890,7 +3923,7 @@ class XmlAttribute(DataElement):
 
         return None
 
-    def getRawValue(self, sout = None, parent = None):
+    def getRawValue(self, sout=None, parent=None):
         return self.getInternalValue(sout, parent)
 
 
@@ -3900,13 +3933,13 @@ class String(DataElement):
     """
 
     EncodeAs = {
-        'char':'iso-8859-1',
-        'wchar':'utf-16le',
-        'utf8':'utf-8',
-        'utf-8':'utf-8',
-        'utf-16le' : 'utf-16le',
-        'utf-16be' : 'utf-16be'
-        }
+        'char': 'iso-8859-1',
+        'wchar': 'utf-16le',
+        'utf8': 'utf-8',
+        'utf-8': 'utf-8',
+        'utf-16le': 'utf-16le',
+        'utf-16be': 'utf-16be'
+    }
 
     #: Default value for valueType
     defaultValueType = 'string'
@@ -3919,7 +3952,7 @@ class String(DataElement):
     #: Default value for nullTerminated
     defaultNullTerminated = False
 
-    def __init__(self, name = None, parent = None):
+    def __init__(self, name=None, parent=None):
         DataElement.__init__(self, name, parent)
         self.elementType = 'string'
         self.valueType = String.defaultValueType
@@ -3944,7 +3977,7 @@ class String(DataElement):
         #: DEPRICATED, Use hint instead
         self.tokens = None
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = String(self.name, self.parent)
@@ -3970,7 +4003,7 @@ class String(DataElement):
         else:
             return ctypes.c_char_p(self.getInternalValue().encode(self.EncodeAs[self.type]))
 
-    def getLength(self, inRaw = True):
+    def getLength(self, inRaw=True):
         """
         Get the length of this element.
         """
@@ -3986,7 +4019,7 @@ class String(DataElement):
 
         return self.length
 
-    def getInternalValue(self, sout = None):
+    def getInternalValue(self, sout=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -4018,7 +4051,8 @@ class String(DataElement):
         # 4. Relations
 
         value = self.getRelationValue(value)
-        if not type(value) in [str, unicode]:
+        # if not type(value) in [str, unicode]:
+        if not type(value) in [str]:
             value = str(value)
 
         # 5. fixup
@@ -4034,7 +4068,7 @@ class String(DataElement):
 
         return value
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
 
         # finalValue overrides everything!
         if self.finalValue is not None:
@@ -4050,7 +4084,9 @@ class String(DataElement):
                 # 1. Init value
                 value = self.getInternalValue()
 
-                if len(value) < self.length:
+                if self.length == None:
+                    value = value[:self.length]
+                elif len(value) < self.length:
                     value += self.padCharacter * (self.length - len(value))
                 else:
                     value = value[:self.length]
@@ -4070,7 +4106,6 @@ class String(DataElement):
 
                 value = value.encode(self.EncodeAs[self.type])
 
-
         # Even for final values we must return binary strings
         # this will "encode" them as such
         if type(value) != str:
@@ -4081,7 +4116,7 @@ class String(DataElement):
         if sout is not None:
             sout.write(value, self.getFullnameInDataModel())
 
-        #if type(value) != str:
+        # if type(value) != str:
         #	print "[%s]" % value
         #	raise Exception("Whoa, string not str!!")
 
@@ -4198,12 +4233,12 @@ class Flags(DataElement):
             if n.elementType == 'flag':
                 flags.append(n)
         if self.padding:
-            #print self.endian, self.rightToLeft, self.padding
+            # print self.endian, self.rightToLeft, self.padding
             bits = BitBuffer("\0" * (self.length / 8), not self.rightToLeft)
         else:
             bits = BitBuffer("\0" * (self.length / 8), self.endian == 'big')
         for flag in flags:
-            #print "%s: %d:, %d, %d" % (flag.name, flag.position, int(flag.getInternalValue()), flag.length)
+            # print "%s: %d:, %d, %d" % (flag.name, flag.position, int(flag.getInternalValue()), flag.length)
             bits.seek(flag.position)
             bits.writebits(int(flag.getInternalValue()), flag.length)
         if self.padding and ((self.endian == 'little' and not self.rightToLeft) or
@@ -4252,12 +4287,13 @@ class Flag(DataElement):
     """
     A flag in a flag set
     """
+
     def __init__(self, name, parent):
         DataElement.__init__(self, name, parent)
         self.elementType = 'flag'
         self.defaultValue = None
         self.position = None
-        self.length = None	# called size
+        self.length = None  # called size
         self.signed = False
 
     def getSize(self):
@@ -4265,6 +4301,7 @@ class Flag(DataElement):
 
     def setSize(self, size):
         self.length = size
+
     size = property(fget=getSize, fset=setSize)
 
     def getMinValue(self):
@@ -4275,20 +4312,20 @@ class Flag(DataElement):
         if not self.signed:
             return 0
 
-        min = 0 - (pow(2, self.length)-1)
+        min = 0 - (pow(2, self.length) - 1)
         return min
 
     def getMaxValue(self):
         """
         Get the maximum value for this number.
         """
-        max = pow(2, self.length)-1
+        max = pow(2, self.length) - 1
         if self.signed:
-            return max/2
+            return max / 2
 
         return max
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = Flag(self.name, self.parent)
@@ -4316,9 +4353,9 @@ class Flag(DataElement):
             value = self.defaultValue
 
         # 3. Relations
-        #print self.name + ": Pre-relation:", value
+        # print self.name + ": Pre-relation:", value
         value = self.getRelationValue(value)
-        #print self.name + ": Post-relation:", value
+        # print self.name + ": Post-relation:", value
 
         # 4. Fixup
         if self.fixup is not None:
@@ -4342,7 +4379,7 @@ class Flag(DataElement):
 
         return value
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
         # We shouldn't ever be here since flag
         # should always be hidden behind Flags
         # but sometimes things get re-arranged.
@@ -4373,7 +4410,7 @@ class Seek(ElementWithChildren):
         self.currentValue = None
         self.defaultValue = None
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = Seek(self.name, self.parent)
@@ -4389,18 +4426,18 @@ class Seek(ElementWithChildren):
 
     def _getExpressionPosition(self, currentPosition, dataLength, data):
         environment = {
-            'self' : self,
-            'pos' : currentPosition,
-            'dataLength' : dataLength
-            }
+            'self': self,
+            'pos': currentPosition,
+            'dataLength': dataLength
+        }
 
-        #DataElement._fixRealParent(self, self)
+        # DataElement._fixRealParent(self, self)
         try:
             pos = -1
             pos = evalEvent(self.expression, environment, self)
 
         finally:
-            #DataElement._unFixRealParent(self)
+            # DataElement._unFixRealParent(self)
             pass
 
         return pos
@@ -4436,7 +4473,7 @@ class Seek(ElementWithChildren):
         # 2. Check if has a realParent
 
         if hasattr(root, 'realParent'):
-            #print "_fixRealParent(): Found fake root: ", root.name
+            # print "_fixRealParent(): Found fake root: ", root.name
             root.parent = root.realParent
 
         # done!
@@ -4453,7 +4490,7 @@ class Seek(ElementWithChildren):
             root = root.parent
 
         # 2. Remove parent link
-        #print "_unFixRealParent(): Found fake root: ", root.name
+        # print "_unFixRealParent(): Found fake root: ", root.name
         root.parent = None
 
 
@@ -4475,7 +4512,7 @@ class Blob(DataElement):
         self.length = None
         self.lengthCalc = None
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             blob = Blob(self.name, self.parent)
@@ -4509,7 +4546,7 @@ class Blob(DataElement):
 
         return ret
 
-    def getInternalValue(self, sout = None):
+    def getInternalValue(self, sout=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -4556,7 +4593,7 @@ class Blob(DataElement):
 
         return self.length
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
 
         targetLength = None
 
@@ -4615,14 +4652,14 @@ class Relation(Element):
     """
 
     ## For debugging
-    #def getParent(self):
+    # def getParent(self):
     #	return self._parent
-    #def setParent(self, value):
+    # def setParent(self, value):
     #	self._parent = value
     #	#if hasattr(self, "of") and self.of == "Tables":
     #	#	print self,"Relation.setParent()",value
     #	#	traceback.print_stack()
-    #parent = property(fget=getParent, fset=setParent)
+    # parent = property(fget=getParent, fset=setParent)
 
     def __init__(self, name, parent):
         Element.__init__(self, name, parent)
@@ -4646,13 +4683,13 @@ class Relation(Element):
         self.isOutputOnly = False
 
         #: Parent of this object
-        #self.parent = parent
+        # self.parent = parent
         #: Expression to apply to relation when getting value
         self.expressionGet = None
         #: Expression to apply to relation when setting value
         self.expressionSet = None
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
 
         if obj is None:
             obj = Relation(self.name, self.parent)
@@ -4682,7 +4719,7 @@ class Relation(Element):
 
         return name
 
-    def getValue(self, default = False):
+    def getValue(self, default=False):
         """
         For a size-of relation get the size
         of the referenced value.  Apply expression
@@ -4710,10 +4747,10 @@ class Relation(Element):
                 value = int(self.parent.getInternalValue())
 
             environment = {
-                'self' : self.parent,
-                'length' : value,
-                'size' : value,
-                }
+                'self': self.parent,
+                'length': value,
+                'size': value,
+            }
 
         elif self.type == 'count':
             if default:
@@ -4725,9 +4762,9 @@ class Relation(Element):
                 value = int(self.parent.getInternalValue())
 
             environment = {
-                'self' : self.parent,
-                'count' : value,
-                }
+                'self': self.parent,
+                'count': value,
+            }
 
         elif self.type == 'offset':
             if default:
@@ -4755,9 +4792,9 @@ class Relation(Element):
                         raise
 
             environment = {
-                'self' : self.parent,
-                'offset' : value,
-                }
+                'self': self.parent,
+                'offset': value,
+            }
         else:
             raise Exception("Should not be here!")
 
@@ -4786,18 +4823,18 @@ class Relation(Element):
 
         if self.type == 'size':
             environment = {
-                'of' : self.getOfElement(),
-                'self' : self.parent,
-                'length' : value,
-                'size' : int(value),
-                }
+                'of': self.getOfElement(),
+                'self': self.parent,
+                'length': value,
+                'size': int(value),
+            }
 
         elif self.type == 'count':
             environment = {
-                'of' : self.getOfElement(),
-                'self' : self.parent,
-                'count' : int(value),
-                }
+                'of': self.getOfElement(),
+                'self': self.parent,
+                'count': int(value),
+            }
 
         elif self.type == 'offset':
 
@@ -4812,10 +4849,10 @@ class Relation(Element):
                     value = value - obj.possiblePos
 
             environment = {
-                'of' : self.getOfElement(),
-                'self' : self.parent,
-                'offset' : int(value),
-                }
+                'of': self.getOfElement(),
+                'self': self.parent,
+                'offset': int(value),
+            }
 
         else:
             raise Exception("Should not be here!")
@@ -4831,7 +4868,6 @@ class Relation(Element):
 
         return int(value)
 
-
     def getOfElement(self):
         """
         Resolve of reference.  We want todo this at
@@ -4841,8 +4877,8 @@ class Relation(Element):
         if self.of is None:
             return None
 
-        #print self
-        #print self.of
+        # print self
+        # print self.of
         obj = self.parent.findDataElementByName(self.of)
         if obj is None:
             # Could element have become an array?
@@ -4850,7 +4886,7 @@ class Relation(Element):
 
         if obj is None:
             print(self.parent.name, self.parent)
-            print("Parent:",self.parent.parent)
+            print("Parent:", self.parent.parent)
             print("DataRoot:", self.parent.getRootOfDataMap())
             print("DataRoot.parent:", self.parent.getRootOfDataMap().parent)
             print("Fullname:", self.getFullnameInDataModel())
@@ -4878,6 +4914,7 @@ class Data(ElementWithChildren):
     When used in multi-file mode, |fileName| will always contain an actual real file.
     It is up to the mutator strategy to use the other files.
     """
+
     def __init__(self, name):
         ElementWithChildren.__init__(self, name, None)
         self.elementType = 'data'
@@ -4949,6 +4986,7 @@ class Field(ElementWithChildren):
     """
     Default bit of data.
     """
+
     def __init__(self, name, value, parent):
         ElementWithChildren.__init__(self, name, parent)
         self.elementType = 'field'
@@ -4965,9 +5003,11 @@ class Logger(ElementWithChildren):
     """
     A logger used to log peach events.
     """
+
     def __init__(self, parent):
         ElementWithChildren.__init__(self, None, parent)
         self.elementType = 'logger'
+
 
 class Namespace(Element):
     def __init__(self):
@@ -4984,6 +5024,7 @@ class Namespace(Element):
         self._setAttribute(node, 'src', self.nsSrc)
 
         return node
+
 
 class PythonPath(Element):
     def __init__(self):
@@ -5032,6 +5073,7 @@ class State(Mutatable):
                 return child
         return None
 
+
 class StateChoice(ElementWithChildren):
     def __init__(self, parent):
         ElementWithChildren.__init__(self, None, parent)
@@ -5043,12 +5085,14 @@ class StateChoice(ElementWithChildren):
                 return child
         return None
 
+
 class StateChoiceAction(Element):
     def __init__(self, ref, type, parent):
         Element.__init__(self, None, parent)
         self.elementType = 'stateChoiceAction'
         self.ref = ref
         self.type = type
+
 
 class Path(Element):
     def __init__(self, ref, parent):
@@ -5057,12 +5101,14 @@ class Path(Element):
         self.ref = ref
         self.stop = False
 
+
 class Strategy(ElementWithChildren):
     def __init__(self, classStr, parent):
         ElementWithChildren.__init__(self, None, parent)
         self.elementType = 'strategy'
         self.params = {}
         self.classStr = classStr
+
 
 class Action(Mutatable):
     def __init__(self, name, parent):
@@ -5093,6 +5139,7 @@ class ActionParam(ElementWithChildren):
         self.data = None
         self.value = None
 
+
 class ActionResult(ElementWithChildren):
     def __init__(self, name, parent):
         ElementWithChildren.__init__(self, name, parent)
@@ -5100,16 +5147,19 @@ class ActionResult(ElementWithChildren):
         self.template = None
         self.value = None
 
+
 class Mutators(ElementWithChildren):
     def __init__(self, name, parent):
         ElementWithChildren.__init__(self, name, parent)
         self.elementType = 'mutators'
+
 
 class Mutator(ElementWithChildren):
     def __init__(self, name, parent):
         ElementWithChildren.__init__(self, name, parent)
         self.elementType = 'mutator'
         self.mutator = None
+
 
 class Hint(ElementWithChildren):
     """
@@ -5120,12 +5170,13 @@ class Hint(ElementWithChildren):
 
     Hints are optional bits of meta data.
     """
+
     def __init__(self, name, parent):
         ElementWithChildren.__init__(self, name, parent)
         self.elementType = 'hint'
         self.value = None
 
-    def clone(self, obj = None):
+    def clone(self, obj=None):
         if obj is None:
             obj = Hint(self.name, self.parent)
         obj.elementType = self.elementType
@@ -5153,13 +5204,13 @@ class Custom(DataElement):
         """
         raise NotImplementedError("handleIncomingSize not implemented")
 
-    def handleIncoming(self, cntx, data, pos, parent, doingMinMax = False):
+    def handleIncoming(self, cntx, data, pos, parent, doingMinMax=False):
         """
         Handle data cracking.
         """
         raise NotImplementedError("handleIncoming not implemented")
 
-    def getInternalValue(self, sout = None):
+    def getInternalValue(self, sout=None):
         """
         Return the internal value of this date element.  This
         value comes before any modifications such as packing,
@@ -5175,12 +5226,11 @@ class Custom(DataElement):
         """
         return len(self.getValue())
 
-    def getRawValue(self, sout = None):
+    def getRawValue(self, sout=None):
         return self.getInternalValue(sout)
 
 
 def DomPrint(indent, node):
-
     tabs = '  ' * indent
 
     if hasattr(node, 'parent') and node.parent is not None:
@@ -5192,4 +5242,4 @@ def DomPrint(indent, node):
 
     if node.hasChildren:
         for child in node._children:
-            DomPrint(indent+1, child)
+            DomPrint(indent + 1, child)
