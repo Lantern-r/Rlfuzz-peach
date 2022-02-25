@@ -11,16 +11,18 @@ import rlfuzz.coverage as coverage
 from rlfuzz.coverage import PATH_MAP_SIZE
 from rlfuzz.coverage import MAP_SIZE_SOCKET
 from rlfuzz.envs.fuzz_mutator import *
+from rlfuzz.envs.sample_analyse import *
 
 
 class FuzzBaseEnv(gym.Env):
-    def __init__(self, socket_flag=False):
+    def __init__(self, socket_flag=False, PeachFlag=False):
         self.socket_flag = socket_flag
+        self.PeachFlag = PeachFlag
         # Classes that inherit FuzzBase must define before calling this
         if socket_flag:
             self.engine = coverage.SocketComm(self.target_ip, self.target_port, self.comm_method)
         else:
-            self.engine = coverage.Afl(self._target_path, args=self._args , suffix=self._suffix)
+            self.engine = coverage.Afl(self._target_path, args=self._args, suffix=self._suffix)
         self.input_maxsize = self._input_maxsize  # 最大input大小
         self.mutator = FuzzMutatorPlus(self.input_maxsize)  # 变异策略
         self.mutate_size = self.mutator.methodNum  # 变异策略种类
@@ -58,25 +60,22 @@ class FuzzBaseEnv(gym.Env):
                 spaces.Discrete(16)
             ))
         })
-
-        # 5. 加入格式约束
-        self.action_space = spaces.Dict({
-            'mutate': spaces.Discrete(self.mutate_size),
-            'loc': spaces.Tuple((
-                spaces.Discrete(16),
-                spaces.Discrete(16),
-                spaces.Discrete(16),
-                spaces.Discrete(16)
-            )),
-            'density': spaces.Tuple((
-                spaces.Discrete(16),
-                spaces.Discrete(16)
-            )),
-            'block_num': spaces.Tuple((
-                spaces.Discrete(16),
-                spaces.Discrete(16)
-            ))
-        })
+        if PeachFlag:
+            # 5. 加入格式约束
+            self.action_space = spaces.Dict({
+                'mutate': spaces.Discrete(self.mutate_size),
+                'loc': spaces.Tuple((
+                    spaces.Discrete(16),
+                    spaces.Discrete(16),
+                    spaces.Discrete(16),
+                    spaces.Discrete(16)
+                )),
+                'density': spaces.Tuple((
+                    spaces.Discrete(16),
+                    spaces.Discrete(16)
+                )),
+                'block_num': spaces.Discrete(len(self.muteble_num))
+            })
 
         self.isDiscreteEnv = False  # 默认为连续环境
 
@@ -88,8 +87,11 @@ class FuzzBaseEnv(gym.Env):
         self.transition_count = []  # 记录每次input运行的EDGE数量
         # self.action_history = [] # 记录每次model计算的原始action值
         self.virgin_count = []  # 记录edge访问数量的变化情况
-        self.seed_block=[] #记录当前样本的格式约束解析结果 (位置，长度)
-        self.muteble_num=[] #记录可变异的块的序号
+        if PeachFlag:
+            # 记录当前样本的格式约束解析结果 (位置，长度)  记录可变异的块的序号
+            self.seed_block, self.muteble_num = Sample_dataCrack(self._dataModelName,
+                                                                 self._Seed_Path,
+                                                                 self._PitPath)
 
         # 记录全局的edge访问
         if self.socket_flag:
@@ -123,36 +125,35 @@ class FuzzBaseEnv(gym.Env):
         if self.isDiscreteEnv:
             self.isDiscreteEnv = False
             self.mutator = FuzzMutatorPlus(self.input_maxsize)
-            # self.action_space = spaces.Dict({
-            #     'mutate': spaces.Discrete(self.mutate_size),
-            #     'loc': spaces.Tuple((
-            #         spaces.Discrete(16),
-            #         spaces.Discrete(16),
-            #         spaces.Discrete(16),
-            #         spaces.Discrete(16)
-            #     )),
-            #     'density': spaces.Tuple((
-            #         spaces.Discrete(16),
-            #         spaces.Discrete(16)
-            #     ))
-            # })
-            self.action_space = spaces.Dict({
-                'mutate': spaces.Discrete(self.mutate_size),
-                'loc': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'density': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'block_num': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                ))
-            })
+            if not self.PeachFlag:
+                self.action_space = spaces.Dict({
+                    'mutate': spaces.Discrete(self.mutate_size),
+                    'loc': spaces.Tuple((
+                        spaces.Discrete(16),
+                        spaces.Discrete(16),
+                        spaces.Discrete(16),
+                        spaces.Discrete(16)
+                    )),
+                    'density': spaces.Tuple((
+                        spaces.Discrete(16),
+                        spaces.Discrete(16)
+                    ))
+                })
+            else:
+                self.action_space = spaces.Dict({
+                    'mutate': spaces.Discrete(self.mutate_size),
+                    'loc': spaces.Tuple((
+                        spaces.Discrete(16),
+                        spaces.Discrete(16),
+                        spaces.Discrete(16),
+                        spaces.Discrete(16)
+                    )),
+                    'density': spaces.Tuple((
+                        spaces.Discrete(16),
+                        spaces.Discrete(16)
+                    )),
+                    'block_num': spaces.Discrete(len(self.muteble_num))
+                })
 
     def reset(self):
         self.last_input_data = self._seed
@@ -179,8 +180,9 @@ class FuzzBaseEnv(gym.Env):
         self.unique_path_history = []  # 记录发现的新路径数量（coverage_data不同）
         self.transition_count = []  # 记录每次input运行的EDGE数量
         self.virgin_count = []
-        self.seed_block = []  # 记录当前样本的格式约束解析结果
-        self.muteble_num = []  # 记录可变异的块的序号
+        if self.PeachFlag:
+            self.seed_block = []  # 记录当前样本的格式约束解析结果
+            self.muteble_num = []  # 记录可变异的块的序号
 
         assert len(self.last_input_data) <= self.input_maxsize
         return list(self.last_input_data) + [0] * (self.input_maxsize - len(self.last_input_data))
@@ -213,36 +215,47 @@ class FuzzBaseEnv(gym.Env):
 
             # 模型输出 -> actual
             # mutate = self.actor2actual(action[0], self.mutate_size)
-            if self.action_space.contains(action):
-                mutate = action['mutate']
-                locs = action['loc']
-                dens = action['density']
-                muteble_block_nums = action['block_num']
-            else:
-                mutate = np.argmax(action[:self.mutate_size])
-                locs = [np.argmax(action[start: start + 16]) for start in
-                        range(self.mutate_size, self.mutate_size + 64, 16)]
-                dens = [np.argmax(action[start: start + 16]) for start in
-                        range(self.mutate_size + 64, self.mutate_size + 64 + 32, 16)]
-                muteble_block_nums = [np.argmax(action[start: start + 16]) for start in
-                        range(self.mutate_size + 64 + 32, self.mutate_size + 64 + 32 + 32, 16)]
-            ll = [12, 8, 4, 0]
-            loc = sum([n << l for n, l in zip(locs, ll)])
-            density = sum([n << l for n, l in zip(dens, ll[-2:])])
-            # muteble_block_num = sum([n << l for n, l in zip( muteble_block_nums, ll[-2:])])
-            #
-            #TODO:解析样本格式
-            #
+            if self.PeachFlag:
+                if self.action_space.contains(action):
+                    mutate = action['mutate']
+                    locs = action['loc']
+                    dens = action['density']
+                    muteble_block_num = action['block_num']
+                else:
+                    mutate = np.argmax(action[:self.mutate_size])
+                    locs = [np.argmax(action[start: start + 16]) for start in
+                            range(self.mutate_size, self.mutate_size + 64, 16)]
+                    dens = [np.argmax(action[start: start + 16]) for start in
+                            range(self.mutate_size + 64, self.mutate_size + 64 + 32, 16)]
+                    muteble_block_num = np.argmax(action[self.mutate_size + 64 + 32:])
+                ll = [12, 8, 4, 0]
+                loc = sum([n << l for n, l in zip(locs, ll)])
+                density = sum([n << l for n, l in zip(dens, ll[-2:])])
 
-            # 根据可变异块的编号选择变异位置
-            # (block_start_loc,block_length)=self.seed_block[muteble_block_num]
-            # 选择变异策略对last_input_data进行变异操作
-            # tmp_input_data_front=self.last_input_data[:block_start_loc]
-            # block_input_data=self.last_input_data[block_start_loc:block_start_loc+block_length]
-            # tmp_input_data_behind=self.last_input_data[block_start_loc+block_length:]
-            # new_block_data = self.mutator.mutate(mutate, block_input_data, loc, density)
-            # input_data=tmp_input_data_front+new_block_data+tmp_input_data_behind
-            # input_data = self.mutator.mutate(mutate, self.last_input_data, loc, density)
+                # 根据可变异块的编号选择变异位置
+                mutate_block_num = self.muteble_num[muteble_block_num]
+                (block_start_loc, block_length) = self.seed_block[mutate_block_num]
+                # 选择变异策略对last_input_data进行变异操作
+                tmp_input_data_front = self.last_input_data[:block_start_loc]
+                block_input_data = self.last_input_data[block_start_loc:block_start_loc + block_length]
+                tmp_input_data_behind = self.last_input_data[block_start_loc + block_length:]
+                new_block_data = self.mutator.mutate(mutate, block_input_data, loc, density)
+                input_data = tmp_input_data_front + new_block_data + tmp_input_data_behind
+            else:
+                if self.action_space.contains(action):
+                    mutate = action['mutate']
+                    locs = action['loc']
+                    dens = action['density']
+                else:
+                    mutate = np.argmax(action[:self.mutate_size])
+                    locs = [np.argmax(action[start: start + 16]) for start in
+                            range(self.mutate_size, self.mutate_size + 64, 16)]
+                    dens = [np.argmax(action[start: start + 16]) for start in
+                            range(self.mutate_size + 64, self.mutate_size + 64 + 32, 16)]
+                ll = [12, 8, 4, 0]
+                loc = sum([n << l for n, l in zip(locs, ll)])
+                density = sum([n << l for n, l in zip(dens, ll[-2:])])
+                input_data = self.mutator.mutate(mutate, self.last_input_data, loc, density)
         else:  # 离散环境
             if self.action_space.contains(action):
                 mutate = action
