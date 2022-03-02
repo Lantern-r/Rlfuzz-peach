@@ -32,6 +32,12 @@ class FuzzBaseEnv(gym.Env):
 
         self.observation_space = spaces.Box(0, 255, shape=(self.input_maxsize,), dtype='uint8')  # 状态空间
 
+        if PeachFlag:
+            # 记录当前样本的格式约束解析结果 (位置，长度)  记录可变异的块的序号
+            self.seed_block, self.muteble_num = Sample_dataCrack(self._dataModelName,
+                                                                 self._Seed_Path,
+                                                                 self._PitPath)
+
         # 1.
         # self.action_space = spaces.Discrete(self.mutate_size)
 
@@ -87,11 +93,7 @@ class FuzzBaseEnv(gym.Env):
         self.transition_count = []  # 记录每次input运行的EDGE数量
         # self.action_history = [] # 记录每次model计算的原始action值
         self.virgin_count = []  # 记录edge访问数量的变化情况
-        if PeachFlag:
-            # 记录当前样本的格式约束解析结果 (位置，长度)  记录可变异的块的序号
-            self.seed_block, self.muteble_num = Sample_dataCrack(self._dataModelName,
-                                                                 self._Seed_Path,
-                                                                 self._PitPath)
+
 
         # 记录全局的edge访问
         if self.socket_flag:
@@ -240,6 +242,10 @@ class FuzzBaseEnv(gym.Env):
                 block_input_data = self.last_input_data[block_start_loc:block_start_loc + block_length]
                 tmp_input_data_behind = self.last_input_data[block_start_loc + block_length:]
                 new_block_data = self.mutator.mutate(mutate, block_input_data, loc, density)
+                new_block_length = len(new_block_data)
+                self.seed_block[mutate_block_num] = (block_start_loc, new_block_length)
+                for i in range(mutate_block_num, len(seed_block)):
+                    self.seed_block[i][0] += (new_block_length - block_length)
                 input_data = tmp_input_data_front + new_block_data + tmp_input_data_behind
             else:
                 if self.action_space.contains(action):

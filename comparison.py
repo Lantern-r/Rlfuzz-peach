@@ -94,6 +94,8 @@ if __name__ == "__main__":
     parser.add_argument('--activation', '-a', default='relu', help='activation function.')
     parser.add_argument('--steps', default=20000, help='all steps number.', type=int)
     parser.add_argument('--radio', default=0.1, help='warmup radio.', type=float)
+    parser.add_argument('--peach', default=False, help='Use Peach')
+    parser.add_argument('--pit', help='Pit File Path')
     args = parser.parse_args()
 
     ALL_STEPS = args.steps
@@ -104,6 +106,12 @@ if __name__ == "__main__":
     START_TIME = args.start_time
     print('[+] {} {}'.format(ENV_NAME, METHOD))
 
+    if args.peach:
+        if not args.pit:
+            print("Need a Pit File!")
+            exit(0)
+        PitPath = args.pit
+
     if args.use_seed:
         DIR_NAME = 'COMPARISON-{}-{}-{}-{}-with_seed'.format(ACTIVATION, ALL_STEPS, WARMUP_STEPS, START_TIME)
     else:
@@ -112,13 +120,20 @@ if __name__ == "__main__":
 
     # [e.id for e in gym.envs.registry.all()]
     if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
-                    'FuzzAC68U-v0', 'FuzzAC9-v0','Fuzzgzip-v0'] and METHOD in ["random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
+                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0'] and METHOD in ["random", "ddpg", "dqn", "double-dqn",
+                                                                                "duel-dqn"]:
         env = gym.make(ENV_NAME)
         env.seed(5)  # 起点相同
         # nb_actions = env.action_space.shape[0]
         # env.setDiscreteEnv()
-        nb_actions = env.action_space['mutate'].n+len(env.action_space['loc'])*env.action_space['loc'][0].n+len(env.action_space['density'])*env.action_space['density'][0].n
-        nb_observation = env.observation_space.shape[0]
+        if args.peach:
+            nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][0].n + len(
+                env.action_space['density']) * env.action_space['density'][0].n+env.action_space['block_num'].n
+            nb_observation = env.observation_space.shape[0]
+        else:
+            nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][0].n + len(
+                env.action_space['density']) * env.action_space['density'][0].n
+            nb_observation = env.observation_space.shape[0]
 
         if args.use_seed:  # 输入初始数据
             SEED_PATH = INITIAL_SEED_PATH[ENV_NAME]
