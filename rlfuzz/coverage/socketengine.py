@@ -34,7 +34,7 @@ class SocketEngine:
         received_data1 = self.control_socket.recv(size)
         received_data2 = self.control_socket.recv(65536)
         status, data = self.recv_process(received_data1)
-        data = received_data2
+        # data = received_data2
         return (status, data)
 
     def UDP_communicate(self, input_data, size):

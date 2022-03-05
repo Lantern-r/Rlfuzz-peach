@@ -39,7 +39,7 @@ INITIAL_SEED_PATH = {
     'FuzzMd5sum-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/inputs/bin-ls-md5s',
     'FuzzUniq-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/uniq/inputs/man-clang3-sorted',
     'FuzzWho-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
-    'FuzzAC68U-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
+    'FuzzAC68U-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
     'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/1.ppt.gz'
     # 'FuzzPngquant-v0':r'/home/bupt1112/codes/gym_fuzzing/gym_fuzz1ng/mods/pngquant-master-mod/pngquant-master/test/img/test.png'
@@ -58,6 +58,10 @@ class TimeHistory(Callback):
 def show_graghs(env, history, training_time, json_name):
     data_json = {}
 
+    if args.peach:
+        data=env.seed_block
+        data_json['seed_block'] = data
+
     data = env.input_len_history
     data_json['input_len_history'] = data
 
@@ -70,6 +74,10 @@ def show_graghs(env, history, training_time, json_name):
     # from collections import Counter
     data = env.mutate_history
     data_json['mutate_history'] = data
+
+    if args.peach:
+        data = env.mutate_num_history
+        data_json['mutate_num_history'] = data
 
     data = env.unique_path_history
     data_json['unique_path_history'] = data
@@ -94,7 +102,7 @@ if __name__ == "__main__":
     parser.add_argument('--activation', '-a', default='relu', help='activation function.')
     parser.add_argument('--steps', default=20000, help='all steps number.', type=int)
     parser.add_argument('--radio', default=0.1, help='warmup radio.', type=float)
-    parser.add_argument('--peach', default=False, help='Use Peach')
+    parser.add_argument('--peach', action='store_true', help='Use Peach')
     parser.add_argument('--pit', help='Pit File Path')
     args = parser.parse_args()
 
@@ -106,11 +114,11 @@ if __name__ == "__main__":
     START_TIME = args.start_time
     print('[+] {} {}'.format(ENV_NAME, METHOD))
 
-    if args.peach:
-        if not args.pit:
-            print("Need a Pit File!")
-            exit(0)
-        PitPath = args.pit
+    # if args.peach:
+    #     if not args.pit:
+    #         print("Need a Pit File!")
+    #         exit(0)
+    #     PitPath = args.pit
 
     if args.use_seed:
         DIR_NAME = 'COMPARISON-{}-{}-{}-{}-with_seed'.format(ACTIVATION, ALL_STEPS, WARMUP_STEPS, START_TIME)

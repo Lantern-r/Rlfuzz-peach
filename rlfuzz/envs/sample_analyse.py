@@ -78,9 +78,9 @@ class DataModelAnalyse():
         mutate_block_num.sort()
         for i in range(len(seed_block_start)):
             if i == len(seed_block_start) - 1:
-                seed_block.append((seed_block_start[i], DataLength - seed_block_start[i]))
+                seed_block.append([seed_block_start[i], DataLength - seed_block_start[i]])
             else:
-                seed_block.append((seed_block_start[i], seed_block_start[i + 1] - seed_block_start[i]))
+                seed_block.append([seed_block_start[i], seed_block_start[i + 1] - seed_block_start[i]])
         for i in range(len(mutate_block_num)):
             mutate_block_num[i] = seed_block_start.index(mutate_block_num[i])
         return seed_block, mutate_block_num

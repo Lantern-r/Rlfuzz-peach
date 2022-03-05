@@ -37,6 +37,7 @@ class FuzzBaseEnv(gym.Env):
             self.seed_block, self.muteble_num = Sample_dataCrack(self._dataModelName,
                                                                  self._Seed_Path,
                                                                  self._PitPath)
+            self.mutate_num_history = []  # 记录每次选择的变异块
 
         # 1.
         # self.action_space = spaces.Discrete(self.mutate_size)
@@ -50,22 +51,6 @@ class FuzzBaseEnv(gym.Env):
         #     'loc_density' : spaces.Box(low=-1, high=1, shape=(2,))
         # })
 
-        # 4.全离散环境
-        # 将loc信息分解为4部分 0xffff -> 0xf * 4
-        # 将density分解为2部分 0xff -> 0xf * 2
-        self.action_space = spaces.Dict({
-            'mutate': spaces.Discrete(self.mutate_size),
-            'loc': spaces.Tuple((
-                spaces.Discrete(16),
-                spaces.Discrete(16),
-                spaces.Discrete(16),
-                spaces.Discrete(16)
-            )),
-            'density': spaces.Tuple((
-                spaces.Discrete(16),
-                spaces.Discrete(16)
-            ))
-        })
         if PeachFlag:
             # 5. 加入格式约束
             self.action_space = spaces.Dict({
@@ -82,6 +67,23 @@ class FuzzBaseEnv(gym.Env):
                 )),
                 'block_num': spaces.Discrete(len(self.muteble_num))
             })
+        else:
+            # 4.全离散环境
+            # 将loc信息分解为4部分 0xffff -> 0xf * 4
+            # 将density分解为2部分 0xff -> 0xf * 2
+            self.action_space = spaces.Dict({
+                'mutate': spaces.Discrete(self.mutate_size),
+                'loc': spaces.Tuple((
+                    spaces.Discrete(16),
+                    spaces.Discrete(16),
+                    spaces.Discrete(16),
+                    spaces.Discrete(16)
+                )),
+                'density': spaces.Tuple((
+                    spaces.Discrete(16),
+                    spaces.Discrete(16)
+                ))
+            })
 
         self.isDiscreteEnv = False  # 默认为连续环境
 
@@ -93,7 +95,6 @@ class FuzzBaseEnv(gym.Env):
         self.transition_count = []  # 记录每次input运行的EDGE数量
         # self.action_history = [] # 记录每次model计算的原始action值
         self.virgin_count = []  # 记录edge访问数量的变化情况
-
 
         # 记录全局的edge访问
         if self.socket_flag:
@@ -183,8 +184,7 @@ class FuzzBaseEnv(gym.Env):
         self.transition_count = []  # 记录每次input运行的EDGE数量
         self.virgin_count = []
         if self.PeachFlag:
-            self.seed_block = []  # 记录当前样本的格式约束解析结果
-            self.muteble_num = []  # 记录可变异的块的序号
+            self.mutate_num_history = []  # 记录每次选择的变异块
 
         assert len(self.last_input_data) <= self.input_maxsize
         return list(self.last_input_data) + [0] * (self.input_maxsize - len(self.last_input_data))
@@ -237,16 +237,19 @@ class FuzzBaseEnv(gym.Env):
                 # 根据可变异块的编号选择变异位置
                 mutate_block_num = self.muteble_num[muteble_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_num]
+                self.last_input_data=self.last_input_data.replace(b'\r\n', b'\n')
+
                 # 选择变异策略对last_input_data进行变异操作
                 tmp_input_data_front = self.last_input_data[:block_start_loc]
                 block_input_data = self.last_input_data[block_start_loc:block_start_loc + block_length]
                 tmp_input_data_behind = self.last_input_data[block_start_loc + block_length:]
                 new_block_data = self.mutator.mutate(mutate, block_input_data, loc, density)
                 new_block_length = len(new_block_data)
-                self.seed_block[mutate_block_num] = (block_start_loc, new_block_length)
-                for i in range(mutate_block_num, len(seed_block)):
-                    self.seed_block[i][0] += (new_block_length - block_length)
+                for i in range(mutate_block_num, len(self.seed_block)):
+                    self.seed_block[i][0] += new_block_length - block_length
+
                 input_data = tmp_input_data_front + new_block_data + tmp_input_data_behind
+
             else:
                 if self.action_space.contains(action):
                     mutate = action['mutate']
@@ -275,6 +278,9 @@ class FuzzBaseEnv(gym.Env):
 
         # 记录每一步产生的input字符长度
         self.input_len_history.append(len(input_data))
+
+        #记录每次选择的变异块
+        self.mutate_num_history.append(mutate_block_num)
 
         # 执行一步获取覆盖率信息
         self.coverageInfo = self.engine.run(input_data)

@@ -20,7 +20,7 @@ class FuzzSocketEnv(FuzzBaseEnv):
 
 class FuzzAC68UEnv(FuzzBaseEnv):
     def __init__(self):
-        self.target_ip = '192.168.50.1'
+        self.target_ip = '192.168.108.128'
         self.target_port = 80
         self._seed = b''  # 指定初始变异的文件
         self._input_maxsize = 32 * 1024  # 最大输入文件的大小
@@ -38,7 +38,7 @@ class FuzzAC68UEnv(FuzzBaseEnv):
         assert len(seed) > 0
         assert isinstance(seed, bytes)
         self._seed = seed
-        self._input_maxsize = len(seed)
+        # self._input_maxsize = len(seed)
         self.reset()
 
 

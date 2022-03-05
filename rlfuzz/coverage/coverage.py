@@ -30,7 +30,7 @@ class Coverage:
     # Reward
     def reward(self):
         if self.socket_flag:
-            return self.none_zero_bits_count() / (len(self.coverage_data) * 8)
+            return self.transition_count() / PATH_MAP_SIZE
         return self.transition_count() / PATH_MAP_SIZE
 
     # 运行时经过的跳转数（不重复计算）
