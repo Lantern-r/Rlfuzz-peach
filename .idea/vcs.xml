@@ -2,6 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rlfuzz/mods/fuzzer-test-suite-mod/BUILD" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rlfuzz/mods/fuzzer-test-suite-mod/SRC" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rlfuzz/mods/fuzzer-test-suite-mod/programs/BUILD" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rlfuzz/mods/fuzzer-test-suite-mod/programs/SRC" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-1/file-5.22" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/base64/coreutils-8.24-lava-safe" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/coreutils-8.24-lava-safe" vcs="Git" />

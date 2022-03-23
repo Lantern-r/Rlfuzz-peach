@@ -28,7 +28,7 @@ class FuzzAC68UEnv(FuzzBaseEnv):
         self._target_path = '/AC68U'
         self.PeachFlag = True
         if self.PeachFlag:
-            self._Seed_Path = '/home/real/rlfuzz-socket/test/sample/4.txt'
+            self._Seed_Path = '/home/real/rlfuzz-socket/rlfuzz/test/sample/4.txt'
             self._dataModelName = 'HttpRequest'
             self._PitPath = 'file:test/pit/web_datamodel.xml'
 

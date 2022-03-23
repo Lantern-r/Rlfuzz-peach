@@ -1,8 +1,12 @@
+import numpy as np
+
 from rlfuzz.Peach.Engine.engine import *
 from rlfuzz.Peach.Engine.common import *
 
 from rlfuzz.Peach.Analyzers import *
 from rlfuzz.Peach.Engine.incoming import DataCracker
+
+import os
 
 
 class DataModelAnalyse():
@@ -93,7 +97,7 @@ def Sample_dataCrack(dataModelName, samplePath, PitPath):
     # dataModel = peach.templates[dataModelName]
 
     dataModel = peach.templates[dataModelName].copy(peach)
-    with open(samplePath, "r") as fd:
+    with open(samplePath, "rb") as fd:
         data = fd.read()
     buff = PublisherBuffer(None, data, True)
     cracker = DataCracker(peach)
@@ -106,11 +110,25 @@ def Sample_dataCrack(dataModelName, samplePath, PitPath):
     logging.info("[%s] cracking: '%s'" % (result, samplePath))
     logging.info("Done.")
     AnalyseResult = DataModelAnalyse(dataModel)
-    seed_block, mutate_block_num=AnalyseResult.Res_Parse(len(data))
+    seed_block, mutate_block_num = AnalyseResult.Res_Parse(len(data))
+    return seed_block, mutate_block_num
+
+
+def NewSample_dataCrack(dataModelName, samplePath, PitPath):
+    os.system('/home/real/rlfuzz-socket/rlfuzz/changevenv.sh {} {} {}'.format(dataModelName, samplePath, PitPath))
+    if not os.path.exists('/home/real/rlfuzz-socket/rlfuzz/datacrack_outcome.npy'):
+        raise FileExistsError("no model carck data file")
+    data_json = np.load('/home/real/rlfuzz-socket/rlfuzz/datacrack_outcome.npy', allow_pickle=True)
+    data = data_json.item()
+    seed_block = data['seed_block']
+    mutate_block_num = data['mutate_block_num']
     return seed_block, mutate_block_num
 
 
 if __name__ == '__main__':
     Engine.debug = False
-    seed_block, mutate_block_num = Sample_dataCrack('HttpRequest', '/home/real/rlfuzz-socket/test/sample/4.txt',
+    seed_block, mutate_block_num = NewSample_dataCrack('HttpRequest', '/home/real/rlfuzz-socket/rlfuzz/test/sample/4.txt',
                                                     'file:test/pit/web_datamodel.xml')
+    # seed_block, mutate_block_num = NewSample_dataCrack('PNG',
+    #                                                    '/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/seed.png',
+    #                                                    'file:test/pit/png_datamodel.xml')

@@ -75,11 +75,16 @@ class FuzzgzipEnv(FuzzBaseEnv):
         self._seed = b''  # 指定初始变异的文件
         self._suffix = 'afl_out.gz'
         self._input_maxsize = 32 * 1024  # 最大输入文件的大小
-        super(FuzzgzipEnv, self).__init__()
+        self.peachflag = False
+        if self.peachflag:
+            self._Seed_Path = '/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/1.ppt.gz'
+            self._dataModelName = 'gzip_file'
+            self._PitPath = 'file:test/pit/GZIP_DataModel.xml'
+        super(FuzzgzipEnv, self).__init__(PeachFlag=self.peachflag)
 
     def set_seed(self, seed):
         assert len(seed) > 0
         assert isinstance(seed, bytes)
         self._seed = seed
-        self._input_maxsize = len(seed)
+        self._input_maxsize = len(seed)*10
         self.reset()

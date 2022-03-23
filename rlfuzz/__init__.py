@@ -77,6 +77,18 @@ register(
     entry_point='rlfuzz.envs:FuzzgzipEnv',
 )
 
+# libpng
+
+def libpng_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/fuzzer-test-suite-mod/programs/libpng-1.2.56-afl',
+    )
+register(
+    id='Fuzzlibpng-v0',
+    entry_point='rlfuzz.envs:FuzzlibpngEnv',
+)
+
 # user defined binary
 register(
     id='UserDefined-v0',

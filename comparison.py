@@ -31,7 +31,7 @@ from rlfuzz.envs.restart_remote_monitor import restart_ssh
 
 np.random.seed(5)
 
-os.chdir('/home/real/AIfuzz/multimutatefuzz/examples')
+os.chdir('/home/real/rlfuzz-socket/')
 
 # 每个环境的初始文件路径
 INITIAL_SEED_PATH = {
@@ -41,7 +41,8 @@ INITIAL_SEED_PATH = {
     'FuzzWho-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
     'FuzzAC68U-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
-    'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/1.ppt.gz'
+    'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/1.ppt.gz',
+    'Fuzzlibpng-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/seed.png'
     # 'FuzzPngquant-v0':r'/home/bupt1112/codes/gym_fuzzing/gym_fuzz1ng/mods/pngquant-master-mod/pngquant-master/test/img/test.png'
 }
 
@@ -59,7 +60,7 @@ def show_graghs(env, history, training_time, json_name):
     data_json = {}
 
     if args.peach:
-        data=env.seed_block
+        data = env.seed_block
         data_json['seed_block'] = data
 
     data = env.input_len_history
@@ -128,18 +129,21 @@ if __name__ == "__main__":
 
     # [e.id for e in gym.envs.registry.all()]
     if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
-                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0'] and METHOD in ["random", "ddpg", "dqn", "double-dqn",
-                                                                                "duel-dqn"]:
+                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0'] and METHOD in ["random", "ddpg",
+                                                                                                 "dqn", "double-dqn",
+                                                                                                 "duel-dqn"]:
         env = gym.make(ENV_NAME)
         env.seed(5)  # 起点相同
         # nb_actions = env.action_space.shape[0]
         # env.setDiscreteEnv()
         if args.peach:
-            nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][0].n + len(
-                env.action_space['density']) * env.action_space['density'][0].n+env.action_space['block_num'].n
+            nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][
+                0].n + len(
+                env.action_space['density']) * env.action_space['density'][0].n + env.action_space['block_num'].n
             nb_observation = env.observation_space.shape[0]
         else:
-            nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][0].n + len(
+            nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][
+                0].n + len(
                 env.action_space['density']) * env.action_space['density'][0].n
             nb_observation = env.observation_space.shape[0]
 

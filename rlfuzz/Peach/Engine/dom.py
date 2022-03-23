@@ -4052,7 +4052,7 @@ class String(DataElement):
 
         value = self.getRelationValue(value)
         # if not type(value) in [str, unicode]:
-        if not type(value) in [str]:
+        if not type(value) in [str , bytes]:
             value = str(value)
 
         # 5. fixup

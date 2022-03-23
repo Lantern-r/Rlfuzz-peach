@@ -34,7 +34,10 @@ class FuzzBaseEnv(gym.Env):
 
         if PeachFlag:
             # 记录当前样本的格式约束解析结果 (位置，长度)  记录可变异的块的序号
-            self.seed_block, self.muteble_num = Sample_dataCrack(self._dataModelName,
+            # self.seed_block, self.muteble_num = Sample_dataCrack(self._dataModelName,
+            #                                                      self._Seed_Path,
+            #                                                      self._PitPath)
+            self.seed_block, self.muteble_num = NewSample_dataCrack(self._dataModelName,
                                                                  self._Seed_Path,
                                                                  self._PitPath)
             self.mutate_num_history = []  # 记录每次选择的变异块
@@ -237,7 +240,6 @@ class FuzzBaseEnv(gym.Env):
                 # 根据可变异块的编号选择变异位置
                 mutate_block_num = self.muteble_num[muteble_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_num]
-                self.last_input_data=self.last_input_data.replace(b'\r\n', b'\n')
 
                 # 选择变异策略对last_input_data进行变异操作
                 tmp_input_data_front = self.last_input_data[:block_start_loc]
@@ -280,7 +282,8 @@ class FuzzBaseEnv(gym.Env):
         self.input_len_history.append(len(input_data))
 
         #记录每次选择的变异块
-        self.mutate_num_history.append(mutate_block_num)
+        if self.PeachFlag:
+            self.mutate_num_history.append(mutate_block_num)
 
         # 执行一步获取覆盖率信息
         self.coverageInfo = self.engine.run(input_data)
