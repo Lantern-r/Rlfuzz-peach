@@ -10,6 +10,13 @@ def afl_forkserver_path():
     )
 
 
+def afl_2_57_forkserver_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/afl-2.57b-mod/afl-2.57b/afl-forkserver',
+    )
+
+
 # base64_afl
 def base64_target_path():
     package_directory = os.path.dirname(os.path.abspath(__file__))
@@ -65,17 +72,21 @@ register(
     entry_point='rlfuzz.envs:FuzzWhoEnv',
 )
 
-#tar_afl
+
+# tar_afl
 
 def gzip_target_path():
     package_directory = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(
         package_directory, 'mods/gzip-mod/gzip_afl',
     )
+
+
 register(
     id='Fuzzgzip-v0',
     entry_point='rlfuzz.envs:FuzzgzipEnv',
 )
+
 
 # libpng
 
@@ -84,11 +95,26 @@ def libpng_target_path():
     return os.path.join(
         package_directory, 'mods/fuzzer-test-suite-mod/programs/libpng-1.2.56-afl',
     )
+
+
 register(
     id='Fuzzlibpng-v0',
     entry_point='rlfuzz.envs:FuzzlibpngEnv',
 )
 
+
+# pngquant
+def pngquant_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/pngquant-mod/pngquant-master/pngquant-afl',
+    )
+
+
+register(
+    id='FuzzPngquant-v0',
+    entry_point='rlfuzz.envs:FuzzpngquantEnv',
+)
 # user defined binary
 register(
     id='UserDefined-v0',

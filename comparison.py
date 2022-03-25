@@ -42,8 +42,8 @@ INITIAL_SEED_PATH = {
     'FuzzAC68U-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
     'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/1.ppt.gz',
-    'Fuzzlibpng-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/seed.png'
-    # 'FuzzPngquant-v0':r'/home/bupt1112/codes/gym_fuzzing/gym_fuzz1ng/mods/pngquant-master-mod/pngquant-master/test/img/test.png'
+    'Fuzzlibpng-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/pngtest.png',
+    'FuzzPngquant-v0':r'/home/real/rlfuzz-socket/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/metadata.png'
 }
 
 
@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     # [e.id for e in gym.envs.registry.all()]
     if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
-                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0'] and METHOD in ["random", "ddpg",
+                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0','FuzzPngquant-v0'] and METHOD in ["random", "ddpg",
                                                                                                  "dqn", "double-dqn",
                                                                                                  "duel-dqn"]:
         env = gym.make(ENV_NAME)

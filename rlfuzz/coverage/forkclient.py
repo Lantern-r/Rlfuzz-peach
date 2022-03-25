@@ -14,8 +14,8 @@ import base64
 from posix_ipc import SharedMemory, Semaphore, ExistentialError
 
 # 最大输入大小
-MAX_INPUT_SIZE = (2**16)  # 64K
-MAP_SIZE = (2**16)
+MAX_INPUT_SIZE = (2 ** 16)  # 64K
+MAP_SIZE = (2 ** 16)
 
 _ping_struc_hdr = "<II"
 _pong_struc = "<II"
@@ -94,7 +94,8 @@ class ForkClient:
                         FNULL = open(os.devnull, 'w')
 
                         cmd = [
-                            rlfuzz.afl_forkserver_path(),
+                            rlfuzz.afl_2_57_forkserver_path(),
+                            '-m', 'none',
                             '-f', afl_out_file,
                             '-r', self.randStr,
                             '--',
@@ -146,8 +147,8 @@ class ForkClient:
                 else:
                     if target_path != _target_path:
                         raise Exception("Concurrent targets is not supported: {} {}"
-                            .format(target_path, _target_path,),
-                        )
+                                        .format(target_path, _target_path, ),
+                                        )
 
             else:
                 print("Skipping afl-forkserver start.")
@@ -192,7 +193,7 @@ class ForkClient:
         '--------------------------'
         """
         (msgid, status) = struct.unpack(_pong_struc, msg[:_pong_struc_size])
-        data = msg[_pong_struc_size:_pong_struc_size+MAP_SIZE]
+        data = msg[_pong_struc_size:_pong_struc_size + MAP_SIZE]
 
         return (msgid, status, data)
 

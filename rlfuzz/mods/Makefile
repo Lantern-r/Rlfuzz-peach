@@ -7,7 +7,7 @@ DATAPATH=/tmp
 
 # AFL
 
-AFL_VERSION=2.52b
+AFL_VERSION=2.57b
 AFL_MOD=afl-$(AFL_VERSION)-mod
 AFL_DIR=$(AFL_MOD)/afl-$(AFL_VERSION)
 
@@ -21,8 +21,8 @@ CXXFLAGS=-fsanitize=address
 
 $(AFL_DIR):
 	@echo " **** Downloading afl and applying fuzz1ng mod"
-	cd $(AFL_MOD)/ && if [ ! -f afl-$(AFL_VERSION).tgz ]; then wget http://lcamtuf.coredump.cx/afl/releases/afl-$(AFL_VERSION).tgz; fi
-	cd $(AFL_MOD)/ && tar xf afl-$(AFL_VERSION).tgz
+	cd $(AFL_MOD)/ && if [ ! -f afl-$(AFL_VERSION).tar.gz ]; then wget http://lcamtuf.coredump.cx/afl/releases/afl-$(AFL_VERSION).tar.gz; fi
+	cd $(AFL_MOD)/ && tar zxvf afl-$(AFL_VERSION).tar.gz
 	cp -R $(AFL_MOD)/mod/* $(AFL_DIR)/
 
 $(AFL_DIR)/afl-fuzz: $(AFL_DIR)
@@ -65,6 +65,8 @@ $(LAVA_M_MOD)/who_afl: $(LAVA_M_DIR)
 	cp $(LAVA_M_DIR)/LAVA-M/who/coreutils-8.24-lava-safe/src/who $(LAVA_M_MOD)/who_afl
 
 all: $(AFL_DIR)/afl-fuzz $(LAVA_M_MOD)/base64_afl $(LAVA_M_MOD)/md5sum_afl $(LAVA_M_MOD)/uniq_afl $(LAVA_M_MOD)/who_afl \
+
+AFL: $(AFL_DIR)/afl-fuzz
 
 clean:
 	rm -rf $(AFL_DIR)
