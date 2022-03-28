@@ -41,7 +41,7 @@ INITIAL_SEED_PATH = {
     'FuzzWho-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
     'FuzzAC68U-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
-    'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/1.ppt.gz',
+    'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed2',#/1.ppt.gz',
     'Fuzzlibpng-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/pngtest.png',
     'FuzzPngquant-v0':r'/home/real/rlfuzz-socket/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/metadata.png'
 }
@@ -115,12 +115,9 @@ if __name__ == "__main__":
     START_TIME = args.start_time
     print('[+] {} {}'.format(ENV_NAME, METHOD))
 
-    # if args.peach:
-    #     if not args.pit:
-    #         print("Need a Pit File!")
-    #         exit(0)
-    #     PitPath = args.pit
-
+    if args.peach and not args.use_seed:
+        print('please use seed in peach mode')
+        exit(0)
     if args.use_seed:
         DIR_NAME = 'COMPARISON-{}-{}-{}-{}-with_seed'.format(ACTIVATION, ALL_STEPS, WARMUP_STEPS, START_TIME)
     else:
@@ -134,6 +131,17 @@ if __name__ == "__main__":
                                                                                                  "duel-dqn"]:
         env = gym.make(ENV_NAME)
         env.seed(5)  # 起点相同
+
+        if args.use_seed:  # 输入初始数据
+            SEED_PATH = INITIAL_SEED_PATH[ENV_NAME]
+            if os.path.exists(SEED_PATH):
+                env.set_seed(SEED_PATH)
+                if args.peach:
+                    env.set_peach_seed(SEED_PATH)
+                    env.set_peach()
+            else:
+                print('[!] {} not exist !'.format(SEED_PATH))
+
         # nb_actions = env.action_space.shape[0]
         # env.setDiscreteEnv()
         if args.peach:
@@ -147,15 +155,7 @@ if __name__ == "__main__":
                 env.action_space['density']) * env.action_space['density'][0].n
             nb_observation = env.observation_space.shape[0]
 
-        if args.use_seed:  # 输入初始数据
-            SEED_PATH = INITIAL_SEED_PATH[ENV_NAME]
-            if os.path.exists(SEED_PATH):
-                with open(SEED_PATH, 'rb') as fp:
-                    data = fp.read()
-                    env.set_seed(data)
-                print('[+] Use seed {}, length {}'.format(SEED_PATH, len(data)))
-            else:
-                print('[!] {} not exist !'.format(SEED_PATH))
+
 
         if METHOD == "random":
             nb_steps = []
