@@ -1,6 +1,7 @@
 import gym
 from gym import spaces
 import datetime
+import copy
 import os
 import numpy as np
 import xxhash
@@ -236,7 +237,8 @@ class FuzzBaseEnv(gym.Env):
                 tmp_input_data_behind = self.last_input_data[block_start_loc + block_length:]
                 new_block_data = self.mutator.mutate(mutate, block_input_data, loc, density)
                 new_block_length = len(new_block_data)
-                for i in range(mutate_block_index, len(self.seed_block)):
+                self.seed_block[mutate_block_index][1] = new_block_length
+                for i in range(mutate_block_index + 1, len(self.seed_block)):
                     self.seed_block[i][0] += new_block_length - block_length
 
                 input_data = tmp_input_data_front + new_block_data + tmp_input_data_behind
@@ -290,13 +292,14 @@ class FuzzBaseEnv(gym.Env):
                 self.useful_sample_crack_info[tmpHash] = [self.seed_block, self.muteble_num]
         else:  # 从记录中随机选择待变异样本
             self.change_seed_count += 1
-            if not self.input_dict:
-                self.Change_Seed()
-            rand_choice = random.choice(list(self.input_dict))
-            self.last_input_data = self.input_dict[rand_choice]
-            if self.PeachFlag:  # update model crack result when not fuzz in sequence
-                self.seed_block, self.muteble_num = self.useful_sample_crack_info[rand_choice][0], \
-                                                    self.useful_sample_crack_info[rand_choice][1]
+            if not self.input_dict:  #如果当前种子没有产生过有用的样本
+                self.Change_Seed()  # 更换一个初始种子
+            else:
+                rand_choice = random.choice(list(self.input_dict))
+                self.last_input_data = self.input_dict[rand_choice]
+                if self.PeachFlag:  # update model crack result when not fuzz in sequence
+                    self.seed_block, self.muteble_num = copy.deepcopy(self.useful_sample_crack_info[rand_choice][0]), \
+                                                        self.useful_sample_crack_info[rand_choice][1]
 
         self.virgin_count.append([self.virgin_single_count, self.virgin_multi_count])  #
         self.unique_path_history.append(
@@ -374,7 +377,7 @@ class FuzzBaseEnv(gym.Env):
             self.multi_seed_input_dict[self.seed_index] = self.input_dict
         if self.PeachFlag:
             self.recoverEnv()  # 重设环境修改num_block的大小
-            self.seed_block = self.seed_block_list[self.seed_index]
+            self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
             self.muteble_num = self.muteble_num_list[self.seed_index]
 
     def set_peach(self):
@@ -397,7 +400,7 @@ class FuzzBaseEnv(gym.Env):
                                                                           self._PitPath)
                     self.seed_block_list.append(tmp_seed_block)
                     self.muteble_num_list.append(tmp_muteble_num)
-            self.seed_block = self.seed_block_list[self.seed_index]
+            self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
             self.muteble_num = self.muteble_num_list[self.seed_index]
         self.mutate_num_history = []  # 记录每次选择的变异块
         self.useful_sample_crack_info = {}

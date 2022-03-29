@@ -8,7 +8,7 @@ class FuzzlibpngEnv(FuzzBaseEnv):
         self._target_path = rlfuzz.libpng_target_path()
         self._args = ['']
         self._seed = [b'']  # 指定初始变异的文件
-        self._suffix = 'afl_out.png'
+        self._suffix = '.png'
         self._input_maxsize = 32 * 1024  # 最大输入文件的大小
         self._Seed_Path = ''
         self._dataModelName = 'PNG'
