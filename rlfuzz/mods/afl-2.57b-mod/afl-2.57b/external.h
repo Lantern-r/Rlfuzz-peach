@@ -9,7 +9,8 @@
 #include "config.h"
 
 // 最大输入文件大小
-#define MAX_INPUT_SIZE (1 << 16) // 64KB
+//#define MAX_INPUT_SIZE (1 << 16) // 64KB
+#define MAX_INPUT_SIZE (1 << 22) // 4M
 
 #define SEM_PING_SIGNAL_NAME_HEAD "/afl-ping-signal"
 #define SEM_PONG_SIGNAL_NAME_HEAD "/afl-pong-signal"
