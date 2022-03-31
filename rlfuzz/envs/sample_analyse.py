@@ -7,6 +7,7 @@ from rlfuzz.Peach.Analyzers import *
 from rlfuzz.Peach.Engine.incoming import DataCracker
 
 import os
+import re
 
 
 class DataModelAnalyse():
@@ -115,6 +116,8 @@ def Sample_dataCrack(dataModelName, samplePath, PitPath):
 
 
 def NewSample_dataCrack(dataModelName, samplePath, PitPath):
+    print('\\\\')
+    samplePath = re.sub(r'(&|\*|\?|\||;|~|#|\\)', r'\\\1', samplePath)
     os.system('/home/real/rlfuzz-socket/rlfuzz/changevenv.sh {} {} {}'.format(dataModelName, samplePath, PitPath))
     if not os.path.exists('/home/real/rlfuzz-socket/rlfuzz/datacrack_outcome.npy'):
         raise FileExistsError("no model carck data file")
@@ -127,8 +130,9 @@ def NewSample_dataCrack(dataModelName, samplePath, PitPath):
 
 if __name__ == '__main__':
     Engine.debug = False
-    seed_block, mutate_block_num = NewSample_dataCrack('HttpRequest', '/home/real/rlfuzz-socket/rlfuzz/test/sample/4.txt',
-                                                    'file:test/pit/web_datamodel.xml')
+    seed_block, mutate_block_num = NewSample_dataCrack('gzip_file ',
+                                                       '/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/switchysharp.rar&1265368&1.exe.gz',
+                                                       'file:test/pit/GZIP_DataModel.xml')
     # seed_block, mutate_block_num = NewSample_dataCrack('PNG',
     #                                                    '/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/seed.png',
     #                                                    'file:test/pit/png_datamodel.xml')
