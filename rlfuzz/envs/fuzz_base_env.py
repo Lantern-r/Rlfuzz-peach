@@ -37,6 +37,7 @@ class FuzzBaseEnv(gym.Env):
         self.mutate_size = self.mutator.methodNum  # 变异策略种类
         self.density_size = 256  # [0, 255] 强度定义
 
+        self.initial_seed = True
         self.seed_index = 0  # index of seed in seed list
         self.change_seed_count = 0  # 记录更改种子需要的代数
         self.input_dict = {}  # 记录变异过程中改变覆盖率的样本
@@ -226,22 +227,23 @@ class FuzzBaseEnv(gym.Env):
                 ll = [12, 8, 4, 0]
                 loc = sum([n << l for n, l in zip(locs, ll)])
                 density = sum([n << l for n, l in zip(dens, ll[-2:])])
-
                 # 根据可变异块的编号选择变异位置
                 mutate_block_index = self.muteble_num[muteble_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_index]
+                if self.initial_seed:
+                    input_data = self.last_input_data
+                else:
+                    # 选择变异策略对last_input_data进行变异操作
+                    tmp_input_data_front = self.last_input_data[:block_start_loc]
+                    block_input_data = self.last_input_data[block_start_loc:block_start_loc + block_length]
+                    tmp_input_data_behind = self.last_input_data[block_start_loc + block_length:]
+                    new_block_data = self.mutator.mutate(mutate, block_input_data, loc, density)
+                    new_block_length = len(new_block_data)
+                    self.seed_block[mutate_block_index][1] = new_block_length
+                    for i in range(mutate_block_index + 1, len(self.seed_block)):
+                        self.seed_block[i][0] += new_block_length - block_length
 
-                # 选择变异策略对last_input_data进行变异操作
-                tmp_input_data_front = self.last_input_data[:block_start_loc]
-                block_input_data = self.last_input_data[block_start_loc:block_start_loc + block_length]
-                tmp_input_data_behind = self.last_input_data[block_start_loc + block_length:]
-                new_block_data = self.mutator.mutate(mutate, block_input_data, loc, density)
-                new_block_length = len(new_block_data)
-                self.seed_block[mutate_block_index][1] = new_block_length
-                for i in range(mutate_block_index + 1, len(self.seed_block)):
-                    self.seed_block[i][0] += new_block_length - block_length
-
-                input_data = tmp_input_data_front + new_block_data + tmp_input_data_behind
+                    input_data = tmp_input_data_front + new_block_data + tmp_input_data_behind
 
             else:
                 if self.action_space.contains(action):
@@ -257,7 +259,10 @@ class FuzzBaseEnv(gym.Env):
                 ll = [12, 8, 4, 0]
                 loc = sum([n << l for n, l in zip(locs, ll)])
                 density = sum([n << l for n, l in zip(dens, ll[-2:])])
-                input_data = self.mutator.mutate(mutate, self.last_input_data, loc, density)
+                if self.initial_seed:
+                    input_data = self.last_input_data
+                else:
+                    input_data = self.mutator.mutate(mutate, self.last_input_data, loc, density)
         else:  # 离散环境
             if self.action_space.contains(action):
                 mutate = action
@@ -278,7 +283,7 @@ class FuzzBaseEnv(gym.Env):
 
         # 执行一步获取覆盖率信息
         self.coverageInfo = self.engine.run(input_data)
-
+        self.initial_seed = False
         # 记录产生新覆盖记录的input
         self.covHash.reset()
         self.covHash.update(self.coverageInfo.coverage_data.tostring())
@@ -292,7 +297,7 @@ class FuzzBaseEnv(gym.Env):
                 self.useful_sample_crack_info[tmpHash] = [self.seed_block, self.muteble_num]
         else:  # 从记录中随机选择待变异样本
             self.change_seed_count += 1
-            if not self.input_dict:  #如果当前种子没有产生过有用的样本
+            if not self.input_dict:  # 如果当前种子没有产生过有用的样本
                 self.Change_Seed()  # 更换一个初始种子
             else:
                 rand_choice = random.choice(list(self.input_dict))
@@ -307,7 +312,7 @@ class FuzzBaseEnv(gym.Env):
 
         # 记录每一步运行的EDGE数量
         self.transition_count.append(self.coverageInfo.transition_count())
-        if self.change_seed_count >= 100:
+        if self.change_seed_count >= 10:
             self.Change_Seed()  # 连续100个种子未产生新的路径，就切换种子
         return {
             "reward": self.coverageInfo.reward(),
@@ -369,12 +374,24 @@ class FuzzBaseEnv(gym.Env):
         self.seed_index %= seed_length  # 防止越界
         self.observation_space = spaces.Box(0, 255, shape=(self.input_maxsize,),
                                             dtype='int8')  # 更新状态空间（set_seed后需要修改）
-        self.last_input_data = self._seed[self.seed_index]
+
         if self.seed_index in self.multi_seed_input_dict:
             self.input_dict = self.multi_seed_input_dict[self.seed_index]
+            while not self.input_dict:
+                self.seed_index += 1  # 选择下一个种子
+                self.seed_index %= seed_length  # 防止越界
+                if self.seed_index in self.multi_seed_input_dict:
+                    self.input_dict = self.multi_seed_input_dict[self.seed_index]
+                else:
+                    self.input_dict = {}
+                    self.multi_seed_input_dict[self.seed_index] = self.input_dict
+                    self.initial_seed = True
+                    break
         else:
             self.input_dict = {}
             self.multi_seed_input_dict[self.seed_index] = self.input_dict
+            self.initial_seed = True
+        self.last_input_data = self._seed[self.seed_index]
         if self.PeachFlag:
             self.recoverEnv()  # 重设环境修改num_block的大小
             self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
@@ -393,7 +410,7 @@ class FuzzBaseEnv(gym.Env):
         elif os.path.isdir(self._Seed_Path):
             self.seed_block_list = []
             self.muteble_num_list = []
-            for each in os.listdir(self._Seed_Path):
+            for each in self.seed_names:
                 if each.endswith(self._suffix):
                     tmp_seed_block, tmp_muteble_num = NewSample_dataCrack(self._dataModelName,
                                                                           os.path.join(self._Seed_Path, each),

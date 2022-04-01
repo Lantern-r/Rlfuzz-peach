@@ -116,7 +116,6 @@ def Sample_dataCrack(dataModelName, samplePath, PitPath):
 
 
 def NewSample_dataCrack(dataModelName, samplePath, PitPath):
-    print('\\\\')
     samplePath = re.sub(r'(&|\*|\?|\||;|~|#|\\)', r'\\\1', samplePath)
     os.system('/home/real/rlfuzz-socket/rlfuzz/changevenv.sh {} {} {}'.format(dataModelName, samplePath, PitPath))
     if not os.path.exists('/home/real/rlfuzz-socket/rlfuzz/datacrack_outcome.npy'):
