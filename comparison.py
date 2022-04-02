@@ -41,9 +41,9 @@ INITIAL_SEED_PATH = {
     'FuzzWho-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
     'FuzzAC68U-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
-    'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed',#/1.ppt.gz',
+    'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed',  # /1.ppt.gz',
     'Fuzzlibpng-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/pngtest.png',
-    'FuzzPngquant-v0':r'/home/real/rlfuzz-socket/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/metadata.png'
+    'FuzzPngquant-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/metadata.png'
 }
 
 
@@ -56,12 +56,15 @@ class TimeHistory(Callback):
         self.training_time = self.end_time - self.start_time
 
 
-def show_graghs(env, history, training_time, json_name):
+def show_graghs(env, training_time, json_name, history=None):
     data_json = {}
 
     if args.peach:
         data = env.seed_block
         data_json['seed_block'] = data
+
+    if history:
+        data_json['input_len_history'] = history
 
     data = env.input_len_history
     data_json['input_len_history'] = data
@@ -126,9 +129,10 @@ if __name__ == "__main__":
 
     # [e.id for e in gym.envs.registry.all()]
     if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
-                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0','FuzzPngquant-v0'] and METHOD in ["random", "ddpg",
-                                                                                                 "dqn", "double-dqn",
-                                                                                                 "duel-dqn"]:
+                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0', 'FuzzPngquant-v0'] and METHOD in [
+        "random", "ddpg",
+        "dqn", "double-dqn",
+        "duel-dqn"]:
         env = gym.make(ENV_NAME)
         env.seed(5)  # 起点相同
 
@@ -155,8 +159,6 @@ if __name__ == "__main__":
                 env.action_space['density']) * env.action_space['density'][0].n
             nb_observation = env.observation_space.shape[0]
 
-
-
         if METHOD == "random":
             nb_steps = []
 
@@ -172,7 +174,8 @@ if __name__ == "__main__":
             print('[+] {}s'.format(end - start))
             history = {}
             history['nb_steps'] = nb_steps
-            show_graghs(env, history, end - start, '{}-random-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS))
+            show_graghs(env, end - start, '{}-random-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS),
+                        history=history)
 
         elif METHOD == "ddpg":
             actor_input = Input(shape=(1,) + env.observation_space.shape, name='actor_observation_input')
@@ -214,10 +217,14 @@ if __name__ == "__main__":
             agent.compile(Adam(lr=.001, clipnorm=1.), metrics=['mae'])
 
             timeCb = TimeHistory()
-            history = agent.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
-
-            show_graghs(env, history.history, timeCb.training_time,
-                        '{}-ddpg-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS))
+            try:
+                history = agent.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
+            except Exception:
+                show_graghs(env, timeCb.training_time,
+                            '{}-ddpg-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
+            else:
+                show_graghs(env, timeCb.training_time,
+                            '{}-ddpg-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
 
         elif METHOD == "dqn":  # DQN
             model = Sequential()
@@ -243,8 +250,8 @@ if __name__ == "__main__":
             timeCb = TimeHistory()
             history = dqn.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
 
-            show_graghs(env, history.history, timeCb.training_time,
-                        '{}-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS))
+            show_graghs(env, timeCb.training_time,
+                        '{}-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
         elif METHOD == "double-dqn":
             model = Sequential()
             model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
@@ -269,8 +276,8 @@ if __name__ == "__main__":
             timeCb = TimeHistory()
             history = dqn.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
 
-            show_graghs(env, history.history, timeCb.training_time,
-                        '{}-double-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS))
+            show_graghs(env, timeCb.training_time,
+                        '{}-double-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
         else:
             model = Sequential()
             model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
@@ -295,5 +302,5 @@ if __name__ == "__main__":
             timeCb = TimeHistory()
             history = dqn.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
 
-            show_graghs(env, history.history, timeCb.training_time,
-                        '{}-duel-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS))
+            show_graghs(env, timeCb.training_time,
+                        '{}-duel-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)

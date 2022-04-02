@@ -290,7 +290,7 @@ class FuzzpngquantEnv(FuzzBaseEnv):
                     assert len(seed) > 0
                     assert isinstance(seed, bytes)
                     self._seed.append(seed)
-                    print('[+] Use seed {}, length {}'.format(seed_path + each, len(seed)))
+                    print('[+] Use seed {}, length {}'.format(seed_path + '/'+each, len(seed)))
             self._input_maxsize = 512 * 1024
             self.reset()
 
