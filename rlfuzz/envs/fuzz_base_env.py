@@ -290,6 +290,7 @@ class FuzzBaseEnv(gym.Env):
         tmpHash = self.covHash.digest()
         # if tmpHash not in list(self.input_dict): # 如果当前变异产生新覆盖则选择变异后样本进行下一次变异
         if self.updateVirginMap(self.coverageInfo.coverage_data):
+            reward = self.coverageInfo.reward() * 2
             self.change_seed_count = 0  # 更换种子计数清零
             self.input_dict[tmpHash] = input_data
             self.last_input_data = input_data
@@ -297,6 +298,7 @@ class FuzzBaseEnv(gym.Env):
                 self.useful_sample_crack_info[tmpHash] = [self.seed_block, self.muteble_num]
         else:  # 从记录中随机选择待变异样本
             self.change_seed_count += 1
+            reward = self.coverageInfo.reward()
             if not self.input_dict:  # 如果当前种子没有产生过有用的样本
                 self.Change_Seed()  # 更换一个初始种子
             else:
@@ -315,7 +317,7 @@ class FuzzBaseEnv(gym.Env):
         if self.change_seed_count >= 100:
             self.Change_Seed()  # 连续100个种子未产生新的路径，就切换种子
         return {
-            "reward": self.coverageInfo.reward(),
+            "reward": min(1, reward),
             "input_data": input_data,
             "crash_info": True if self.coverageInfo.crashes > 0 else False  # 是否发生崩溃
         }
