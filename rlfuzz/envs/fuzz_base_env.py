@@ -312,7 +312,7 @@ class FuzzBaseEnv(gym.Env):
 
         # 记录每一步运行的EDGE数量
         self.transition_count.append(self.coverageInfo.transition_count())
-        if self.change_seed_count >= 10:
+        if self.change_seed_count >= 100:
             self.Change_Seed()  # 连续100个种子未产生新的路径，就切换种子
         return {
             "reward": self.coverageInfo.reward(),

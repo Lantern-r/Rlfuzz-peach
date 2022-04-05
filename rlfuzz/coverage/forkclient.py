@@ -15,7 +15,7 @@ from posix_ipc import SharedMemory, Semaphore, ExistentialError
 
 # 最大输入大小
 # MAX_INPUT_SIZE = (2 ** 16)  # 64K
-MAX_INPUT_SIZE = (2 ** 19)  # 512K
+MAX_INPUT_SIZE = (2 ** 18)  # 256K
 MAP_SIZE = (2 ** 16)
 
 _ping_struc_hdr = "<II"
