@@ -103,6 +103,21 @@ register(
 )
 
 
+# gueztil
+
+def gueztil_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/fuzzer-test-suite-mod/programs/guetzli-2017-3-30-afl',
+    )
+
+
+register(
+    id='Fuzzguetzil-v0',
+    entry_point='rlfuzz.envs:FuzzguetzilEnv',
+)
+
+
 # pngquant
 def pngquant_target_path():
     package_directory = os.path.dirname(os.path.abspath(__file__))
