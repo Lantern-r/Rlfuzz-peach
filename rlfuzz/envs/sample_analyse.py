@@ -117,10 +117,10 @@ def Sample_dataCrack(dataModelName, samplePath, PitPath):
 
 def NewSample_dataCrack(dataModelName, samplePath, PitPath):
     samplePath = re.sub(r'(&|\*|\?|\||;|~|#|\\)', r'\\\1', samplePath)
-    os.system('/home/real/rlfuzz-socket/rlfuzz/changevenv.sh {} {} {}'.format(dataModelName, samplePath, PitPath))
-    if not os.path.exists('/home/real/rlfuzz-socket/rlfuzz/datacrack_outcome.npy'):
+    os.system('/home/real/Rlfuzz-peach/rlfuzz/changevenv.sh {} {} {}'.format(dataModelName, samplePath, PitPath))
+    if not os.path.exists('/home/real/Rlfuzz-peach/rlfuzz/datacrack_outcome.npy'):
         raise FileExistsError("no model carck data file")
-    data_json = np.load('/home/real/rlfuzz-socket/rlfuzz/datacrack_outcome.npy', allow_pickle=True)
+    data_json = np.load('/home/real/Rlfuzz-peach/rlfuzz/datacrack_outcome.npy', allow_pickle=True)
     data = data_json.item()
     seed_block = data['seed_block']
     mutate_block_num = data['mutate_block_num']
@@ -130,8 +130,8 @@ def NewSample_dataCrack(dataModelName, samplePath, PitPath):
 if __name__ == '__main__':
     Engine.debug = False
     seed_block, mutate_block_num = NewSample_dataCrack('gzip_file ',
-                                                       '/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed/switchysharp.rar&1265368&1.exe.gz',
+                                                       '/home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/seed/switchysharp.rar&1265368&1.exe.gz',
                                                        'file:test/pit/GZIP_DataModel.xml')
     # seed_block, mutate_block_num = NewSample_dataCrack('PNG',
-    #                                                    '/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/seed.png',
+    #                                                    '/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/seed.png',
     #                                                    'file:test/pit/png_datamodel.xml')

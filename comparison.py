@@ -31,7 +31,7 @@ from rlfuzz.envs.restart_remote_monitor import restart_ssh
 
 np.random.seed(5)
 
-os.chdir('/home/real/rlfuzz-socket/')
+os.chdir('/home/real/Rlfuzz-peach/')
 
 # 每个环境的初始文件路径
 INITIAL_SEED_PATH = {
@@ -39,11 +39,11 @@ INITIAL_SEED_PATH = {
     'FuzzMd5sum-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/inputs/bin-ls-md5s',
     'FuzzUniq-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/uniq/inputs/man-clang3-sorted',
     'FuzzWho-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
-    'FuzzAC68U-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/router-mod/AC68U/4.txt',
+    'FuzzAC68U-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
-    'Fuzzgzip-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/seed',  # /1.ppt.gz',
-    'Fuzzlibpng-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/pngtest.png',
-    'FuzzPngquant-v0': r'/home/real/rlfuzz-socket/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/metadata.png'
+    'Fuzzgzip-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/seed',  # /1.ppt.gz',
+    'Fuzzlibpng-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/pngtest.png',
+    'FuzzPngquant-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/metadata.png'
 }
 
 

@@ -20,8 +20,8 @@ echo $EXECUTABLE_NAME_BASE
 LIBFUZZER_SRC=${LIBFUZZER_SRC:-/home/real/libfuzzer-workshop/libFuzzer/Fuzzer}
 STANDALONE_TARGET=0
 #AFL_SRC=${AFL_SRC:-$(dirname $(dirname $SCRIPT_DIR))/AFL}
-#AFL_SRC=${AFL_SRC:-/home/real/rlfuzz-socket/rlfuzz/mods/afl-2.52b-mod/afl-2.52b}
-AFL_SRC=${AFL_SRC:-/home/real/rlfuzz-socket/rlfuzz/mods/afl-2.57b-mod/afl-2.57b}
+#AFL_SRC=${AFL_SRC:-/home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.52b-mod/afl-2.52b}
+AFL_SRC=${AFL_SRC:-/home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.57b-mod/afl-2.57b}
 HONGGFUZZ_SRC=${HONGGFUZZ_SRC:-$(dirname $(dirname $SCRIPT_DIR))/honggfuzz}
 COVERAGE_FLAGS="-O0 -fsanitize-coverage=trace-pc-guard"
 FUZZ_CXXFLAGS="-O2 -fno-omit-frame-pointer -gline-tables-only -fsanitize=address -fsanitize-address-use-after-scope -fsanitize-coverage=trace-pc-guard,trace-cmp,trace-gep,trace-div"

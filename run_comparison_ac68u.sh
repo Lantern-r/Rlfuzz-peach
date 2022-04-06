@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/real/rlfuzz-socket/
+cd /home/real/Rlfuzz-peach/
 
 methods=("random" "ddpg" "dqn" "double-dqn" "duel-dqn")
 # methods=("random" "ddpg")
