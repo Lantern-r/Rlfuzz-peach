@@ -35,10 +35,17 @@ os.chdir('/home/real/Rlfuzz-peach/')
 
 # 每个环境的初始文件路径
 INITIAL_SEED_PATH = {
+<<<<<<< Updated upstream
     'FuzzBase64-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/base64/inputs/utmp.b64',
     'FuzzMd5sum-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/inputs/bin-ls-md5s',
     'FuzzUniq-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/uniq/inputs/man-clang3-sorted',
     'FuzzWho-v0': r'/home/real/rlfuzz-master/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
+=======
+    'FuzzBase64-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/base64/inputs/utmp.b64',
+    'FuzzMd5sum-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/inputs/bin-ls-md5s',
+    'FuzzUniq-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/uniq/inputs/man-clang3-sorted',
+    'FuzzWho-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
+>>>>>>> Stashed changes
     'FuzzAC68U-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
     'Fuzzgzip-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/seed',  # /1.ppt.gz',

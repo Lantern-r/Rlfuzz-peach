@@ -16,10 +16,7 @@ rlfuzz/envs/fuzz_base_env.py
 rlfuzz/envs/fuzz_lava_m_env.py
 rlfuzz/envs/fuzz_mutator.py
 rlfuzz/envs/fuzz_socket_env.py
+rlfuzz/envs/fuzz_test_suite_env.py
 rlfuzz/envs/fuzz_user_defined_env.py
 rlfuzz/envs/restart_remote_monitor.py
-rlfuzz/mods/afl-2.52b-mod/afl-2.52b/afl-forkserver
-rlfuzz/mods/lava-m-mod/base64_afl
-rlfuzz/mods/lava-m-mod/md5sum_afl
-rlfuzz/mods/lava-m-mod/uniq_afl
-rlfuzz/mods/lava-m-mod/who_afl
+rlfuzz/envs/sample_analyse.py

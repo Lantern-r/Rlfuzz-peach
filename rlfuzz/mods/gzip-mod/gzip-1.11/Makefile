@@ -413,11 +413,27 @@ BITSIZEOF_SIG_ATOMIC_T =
 BITSIZEOF_SIZE_T = 
 BITSIZEOF_WCHAR_T = 
 BITSIZEOF_WINT_T = 
+<<<<<<< Updated upstream
 CC = /home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.57b-mod/afl-2.57b/afl-gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
 CONFIG_INCLUDE = lib/config.h
 CPP = /home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.57b-mod/afl-2.57b/afl-gcc -E
+=======
+<<<<<<< Updated upstream
+CC = /home/real/rlfuzz-socket/rlfuzz/mods/afl-2.57b-mod/afl-2.57b/afl-gcc
+CCDEPMODE = depmode=gcc3
+CFLAGS = -g -O2
+CONFIG_INCLUDE = lib/config.h
+CPP = /home/real/rlfuzz-socket/rlfuzz/mods/afl-2.57b-mod/afl-2.57b/afl-gcc -E
+=======
+CC = /home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.52b-mod/afl-2.52b/afl-gcc
+CCDEPMODE = depmode=gcc3
+CFLAGS = -g -O2
+CONFIG_INCLUDE = lib/config.h
+CPP = /home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.52b-mod/afl-2.52b/afl-gcc -E
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags
@@ -1588,11 +1604,26 @@ WINDOWS_64_BIT_ST_SIZE = 0
 WINDOWS_STAT_INODES = 0
 WINDOWS_STAT_TIMESPEC = 0
 WINT_T_SUFFIX = 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+abs_builddir = /home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/gzip-1.11
+abs_srcdir = /home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/gzip-1.11
+abs_top_builddir = /home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/gzip-1.11
+abs_top_srcdir = /home/real/rlfuzz-socket/rlfuzz/mods/gzip-mod/gzip-1.11
+ac_ct_CC = /home/real/rlfuzz-socket/rlfuzz/mods/afl-2.57b-mod/afl-2.57b/afl-gcc
+=======
+>>>>>>> Stashed changes
 abs_builddir = /home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/gzip-1.11
 abs_srcdir = /home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/gzip-1.11
 abs_top_builddir = /home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/gzip-1.11
 abs_top_srcdir = /home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/gzip-1.11
+<<<<<<< Updated upstream
 ac_ct_CC = /home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.57b-mod/afl-2.57b/afl-gcc
+=======
+ac_ct_CC = /home/real/Rlfuzz-peach/rlfuzz/mods/afl-2.52b-mod/afl-2.52b/afl-gcc
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 am__include = include
 am__leading_dot = .
 am__quote = 
