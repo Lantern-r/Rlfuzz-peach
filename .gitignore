@@ -3,6 +3,7 @@ __pycache__
 venv
 venvcpu
 rlfuzz/datacrack_outcome.npy
-rlfuzz/mods
+rlfuzz/mods/afl-2.52b-mod
+rlfuzz/mods/afl-2.57b-mod
 
 

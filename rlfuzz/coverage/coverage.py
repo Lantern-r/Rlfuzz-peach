@@ -31,7 +31,7 @@ class Coverage:
     def reward(self):
         if self.socket_flag:
             return self.transition_count() / PATH_MAP_SIZE
-        return self.transition_count()*40 / PATH_MAP_SIZE
+        return self.transition_count() * 40 / PATH_MAP_SIZE
 
     # 运行时经过的跳转数（不重复计算）
     def transition_count(self):
@@ -73,9 +73,9 @@ AFL ENGINE
 
 
 class Afl:
-    def __init__(self, target_path, args=[], suffix=None, verbose=False):
+    def __init__(self, target_path, args=[], suffix=None, set_out=[], verbose=False, ):
         self.verbose = verbose
-        self.fc = ForkClient(target_path, args, suffix)
+        self.fc = ForkClient(target_path, args, suffix, set_out)
 
     def run(self, input_data):
         (status, data) = self.fc.run(input_data)

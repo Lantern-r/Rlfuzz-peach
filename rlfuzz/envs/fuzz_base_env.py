@@ -23,7 +23,7 @@ class FuzzBaseEnv(gym.Env):
         if socket_flag:
             self.engine = coverage.SocketComm(self.target_ip, self.target_port, self.comm_method)
         else:
-            self.engine = coverage.Afl(self._target_path, args=self._args, suffix=self._suffix)
+            self.engine = coverage.Afl(self._target_path, args=self._args, suffix=self._suffix, set_out=self._set_out)
 
         self.mutate_num_history = None
         self.muteble_num_list = None
@@ -113,41 +113,6 @@ class FuzzBaseEnv(gym.Env):
             self.mutator = FuzzMutator(self.input_maxsize)
             self.action_space = spaces.Discrete(self.mutate_size)
 
-    # 恢复默认环境
-    def recoverEnv(self):
-        if self.isDiscreteEnv:
-            self.isDiscreteEnv = False
-            self.mutator = FuzzMutatorPlus(self.input_maxsize)
-        if not self.PeachFlag:
-            self.action_space = spaces.Dict({
-                'mutate': spaces.Discrete(self.mutate_size),
-                'loc': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'density': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                ))
-            })
-        else:
-            self.action_space = spaces.Dict({
-                'mutate': spaces.Discrete(self.mutate_size),
-                'loc': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'density': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'block_num': spaces.Discrete(len(self.muteble_num))
-            })
-
     def reset(self):
         self.seed_index = 0
         self.last_input_data = self._seed[self.seed_index]
@@ -216,17 +181,20 @@ class FuzzBaseEnv(gym.Env):
                     mutate = action['mutate']
                     locs = action['loc']
                     dens = action['density']
-                    muteble_block_num = action['block_num']
+                    mutable = action['block_num']
                 else:
                     mutate = np.argmax(action[:self.mutate_size])
                     locs = [np.argmax(action[start: start + 16]) for start in
                             range(self.mutate_size, self.mutate_size + 64, 16)]
                     dens = [np.argmax(action[start: start + 16]) for start in
                             range(self.mutate_size + 64, self.mutate_size + 64 + 32, 16)]
-                    muteble_block_num = np.argmax(action[self.mutate_size + 64 + 32:])
+                    mutable = [np.argmax(action[start: start + 16]) for start in
+                               range(self.mutate_size + 64 + 32, self.mutate_size + 64 + 32 + 32,
+                                     16)]  # np.argmax(action[self.mutate_size + 64 + 32:])
                 ll = [12, 8, 4, 0]
                 loc = sum([n << l for n, l in zip(locs, ll)])
                 density = sum([n << l for n, l in zip(dens, ll[-2:])])
+                muteble_block_num = int(sum([n << l for n, l in zip(mutable, ll[-2:])]) / 256 * len(self.muteble_num))
                 # 根据可变异块的编号选择变异位置
                 mutate_block_index = self.muteble_num[muteble_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_index]
@@ -395,7 +363,6 @@ class FuzzBaseEnv(gym.Env):
             self.initial_seed = True
         self.last_input_data = self._seed[self.seed_index]
         if self.PeachFlag:
-            self.recoverEnv()  # 重设环境修改num_block的大小
             self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
             self.muteble_num = self.muteble_num_list[self.seed_index]
 
@@ -436,6 +403,9 @@ class FuzzBaseEnv(gym.Env):
                 spaces.Discrete(16),
                 spaces.Discrete(16)
             )),
-            'block_num': spaces.Discrete(len(self.muteble_num))
+            'block_num': spaces.Tuple((
+                spaces.Discrete(16),
+                spaces.Discrete(16)
+            ))
         })
         self.reset()

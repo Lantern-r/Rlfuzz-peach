@@ -10,7 +10,7 @@ class FuzzBase64Env(FuzzBaseEnv):
         self._args = ['-d']
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = ''
-        self._input_maxsize = 256 * 1024  # 最大输入文件的大小
+        self._input_maxsize = 64 * 1024  # 最大输入文件的大小
         self.seed_names = []
         super(FuzzBase64Env, self).__init__()
 
@@ -23,7 +23,7 @@ class FuzzBase64Env(FuzzBaseEnv):
             assert isinstance(seed, bytes)
             self._seed = [seed]
             print('[+] Use seed {}, length {}'.format(seed_path, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
         elif os.path.isdir(seed_path):
             seed_names = os.listdir(seed_path)
@@ -45,7 +45,7 @@ class FuzzBase64Env(FuzzBaseEnv):
                     assert isinstance(seed, bytes)
                     self._seed.append(seed)
                     print('[+] Use seed {}, length {}'.format(seed_path + each, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
 
     def set_peach_seed(self, seed_path):
@@ -58,7 +58,7 @@ class FuzzMd5sumEnv(FuzzBaseEnv):
         self._args = ['-c']
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = ''
-        self._input_maxsize = 256 * 1024  # 最大输入文件的大小
+        self._input_maxsize = 64 * 1024  # 最大输入文件的大小
         self.seed_names = []
         super(FuzzMd5sumEnv, self).__init__()
 
@@ -71,7 +71,7 @@ class FuzzMd5sumEnv(FuzzBaseEnv):
             assert isinstance(seed, bytes)
             self._seed = [seed]
             print('[+] Use seed {}, length {}'.format(seed_path, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
         elif os.path.isdir(seed_path):
             seed_names = os.listdir(seed_path)
@@ -93,7 +93,7 @@ class FuzzMd5sumEnv(FuzzBaseEnv):
                     assert isinstance(seed, bytes)
                     self._seed.append(seed)
                     print('[+] Use seed {}, length {}'.format(seed_path + each, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
 
     def set_peach_seed(self, seed_path):
@@ -106,7 +106,7 @@ class FuzzUniqEnv(FuzzBaseEnv):
         self._args = []
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = ''
-        self._input_maxsize = 256 * 1024  # 最大输入文件的大小
+        self._input_maxsize = 64 * 1024  # 最大输入文件的大小
         self.seed_names = []
         super(FuzzUniqEnv, self).__init__()
 
@@ -119,7 +119,7 @@ class FuzzUniqEnv(FuzzBaseEnv):
             assert isinstance(seed, bytes)
             self._seed = [seed]
             print('[+] Use seed {}, length {}'.format(seed_path, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
         elif os.path.isdir(seed_path):
             seed_names = os.listdir(seed_path)
@@ -141,7 +141,7 @@ class FuzzUniqEnv(FuzzBaseEnv):
                     assert isinstance(seed, bytes)
                     self._seed.append(seed)
                     print('[+] Use seed {}, length {}'.format(seed_path + each, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
 
     def set_peach_seed(self, seed_path):
@@ -154,7 +154,7 @@ class FuzzWhoEnv(FuzzBaseEnv):
         self._args = []
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = ''
-        self._input_maxsize = 256 * 1024  # 最大输入文件的大小
+        self._input_maxsize = 64 * 1024  # 最大输入文件的大小
         self.seed_names = []
         super(FuzzWhoEnv, self).__init__()
 
@@ -167,7 +167,7 @@ class FuzzWhoEnv(FuzzBaseEnv):
             assert isinstance(seed, bytes)
             self._seed = [seed]
             print('[+] Use seed {}, length {}'.format(seed_path, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
         elif os.path.isdir(seed_path):
             seed_names = os.listdir(seed_path)
@@ -189,7 +189,7 @@ class FuzzWhoEnv(FuzzBaseEnv):
                     assert isinstance(seed, bytes)
                     self._seed.append(seed)
                     print('[+] Use seed {}, length {}'.format(seed_path + each, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
 
     def set_peach_seed(self, seed_path):
@@ -202,7 +202,8 @@ class FuzzgzipEnv(FuzzBaseEnv):
         self._args = ['-d']
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = '.gz'
-        self._input_maxsize = 256 * 1024  # 最大输入文件的大小
+        self._set_out = []
+        self._input_maxsize = 64 * 1024  # 最大输入文件的大小
         self._Seed_Path = ''
         self._dataModelName = 'gzip_file'
         self._PitPath = 'file:test/pit/GZIP_DataModel.xml'
@@ -218,7 +219,7 @@ class FuzzgzipEnv(FuzzBaseEnv):
             assert isinstance(seed, bytes)
             self._seed = [seed]
             print('[+] Use seed {}, length {}'.format(seed_path, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
         elif os.path.isdir(seed_path):
             seed_names = os.listdir(seed_path)
@@ -240,7 +241,7 @@ class FuzzgzipEnv(FuzzBaseEnv):
                     assert isinstance(seed, bytes)
                     self._seed.append(seed)
                     print('[+] Use seed {}, length {}'.format(seed_path + each, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
 
     def set_peach_seed(self, seed_path):
@@ -251,9 +252,10 @@ class FuzzpngquantEnv(FuzzBaseEnv):
     def __init__(self):
         self._target_path = rlfuzz.pngquant_target_path()
         self._args = ['-f']
+        self._set_out = ['-o', '/tmp/out.png']
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = '.png'
-        self._input_maxsize = 256 * 1024  # 最大输入文件的大小
+        self._input_maxsize = 64 * 1024  # 最大输入文件的大小
         self._Seed_Path = ''
         self._dataModelName = 'PNG'
         self._PitPath = 'file:test/pit/png_datamodel.xml'
@@ -269,7 +271,7 @@ class FuzzpngquantEnv(FuzzBaseEnv):
             assert isinstance(seed, bytes)
             self._seed = [seed]
             print('[+] Use seed {}, length {}'.format(seed_path, len(seed)))
-            self._input_maxsize = 256 * 1024
+            self._input_maxsize = 64 * 1024
             self.reset()
         elif os.path.isdir(seed_path):
             seed_names = os.listdir(seed_path)
@@ -290,8 +292,8 @@ class FuzzpngquantEnv(FuzzBaseEnv):
                     assert len(seed) > 0
                     assert isinstance(seed, bytes)
                     self._seed.append(seed)
-                    print('[+] Use seed {}, length {}'.format(seed_path + '/'+each, len(seed)))
-            self._input_maxsize = 256 * 1024
+                    print('[+] Use seed {}, length {}'.format(seed_path + '/' + each, len(seed)))
+            self._input_maxsize = 64 * 1024
             self.reset()
 
     def set_peach_seed(self, seed_path):

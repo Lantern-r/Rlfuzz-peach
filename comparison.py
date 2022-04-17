@@ -155,13 +155,12 @@ if __name__ == "__main__":
         # env.setDiscreteEnv()
         if args.peach:
             nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][
-                0].n + len(
-                env.action_space['density']) * env.action_space['density'][0].n + env.action_space['block_num'].n
+                0].n + len(env.action_space['density']) * env.action_space['density'][0].n + \
+                len(env.action_space['block_num']) * env.action_space['block_num'][0].n
             nb_observation = env.observation_space.shape[0]
         else:
             nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][
-                0].n + len(
-                env.action_space['density']) * env.action_space['density'][0].n
+                0].n + len(env.action_space['density']) * env.action_space['density'][0].n
             nb_observation = env.observation_space.shape[0]
 
         if METHOD == "random":

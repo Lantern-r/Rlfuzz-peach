@@ -45,7 +45,7 @@ _next_client_id = 0
 
 
 class ForkClient:
-    def __init__(self, target_path, args=[], suffix=None):
+    def __init__(self, target_path, args=[], suffix=None, set_out=[]):
         global _lock
         global _process
         global _target_path
@@ -104,6 +104,8 @@ class ForkClient:
                             target_path,
                         ]
                         cmd += args
+                        if set_out:
+                            cmd += set_out
                         cmd += ['@@']
 
                         # 输出cmd
