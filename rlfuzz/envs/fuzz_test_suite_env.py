@@ -6,9 +6,10 @@ import os
 class FuzzlibpngEnv(FuzzBaseEnv):
     def __init__(self):
         self._target_path = rlfuzz.libpng_target_path()
-        self._args = ['']
+        self._args = []
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = '.png'
+        self._set_out = []
         self._input_maxsize = 32 * 1024  # 最大输入文件的大小
         self._Seed_Path = ''
         self._dataModelName = 'PNG'
@@ -48,7 +49,7 @@ class FuzzlibpngEnv(FuzzBaseEnv):
 class FuzzguetzilEnv(FuzzBaseEnv):
     def __init__(self):
         self._target_path = rlfuzz.gueztil_target_path()
-        self._args = ['']
+        self._args = []
         self._seed = [b'']  # 指定初始变异的文件
         self._suffix = '.jpg'
         self._input_maxsize = 32 * 1024  # 最大输入文件的大小

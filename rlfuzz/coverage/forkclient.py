@@ -103,7 +103,8 @@ class ForkClient:
                             '--',
                             target_path,
                         ]
-                        cmd += args
+                        if args:
+                            cmd += args
                         if set_out:
                             cmd += set_out
                         cmd += ['@@']
