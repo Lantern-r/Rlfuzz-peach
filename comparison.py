@@ -46,9 +46,9 @@ INITIAL_SEED_PATH = {
     'FuzzAC68U-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/router-mod/AC68U/4.txt',
     'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
     'Fuzzgzip-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/seed',  # /1.ppt.gz',
-    'Fuzzlibpng-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/pngtest.png',
+    'Fuzzlibpng-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/',
     'FuzzPngquant-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/',
-    'Fuzzguetzil-v0':r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds'
+    'Fuzzguetzil-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds'
 }
 
 
@@ -119,6 +119,7 @@ if __name__ == "__main__":
     WARMUP_STEPS = int(ALL_STEPS * args.radio)
     ACTIVATION = args.activation
     ENV_NAME = args.env
+    PEACH = 'peach' if args.peach else 'nopeach'
     METHOD = args.method.lower()
     START_TIME = args.start_time
     print('[+] {} {}'.format(ENV_NAME, METHOD))
@@ -126,6 +127,7 @@ if __name__ == "__main__":
     if args.peach and not args.use_seed:
         print('please use seed in peach mode')
         exit(0)
+
     if args.use_seed:
         DIR_NAME = 'COMPARISON-{}-{}-{}-{}-with_seed'.format(ACTIVATION, ALL_STEPS, WARMUP_STEPS, START_TIME)
     else:
@@ -135,9 +137,7 @@ if __name__ == "__main__":
     # [e.id for e in gym.envs.registry.all()]
     if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
                     'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0', 'Fuzzguetzil-v0'] and METHOD in [
-        "random", "ddpg",
-        "dqn", "double-dqn",
-        "duel-dqn"]:
+        "random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
         env = gym.make(ENV_NAME)
         env.seed(5)  # 起点相同
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         if args.peach:
             nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][
                 0].n + len(env.action_space['density']) * env.action_space['density'][0].n + \
-                len(env.action_space['block_num']) * env.action_space['block_num'][0].n
+                         len(env.action_space['block_num']) * env.action_space['block_num'][0].n
             nb_observation = env.observation_space.shape[0]
         else:
             nb_actions = env.action_space['mutate'].n + len(env.action_space['loc']) * env.action_space['loc'][
@@ -225,10 +225,12 @@ if __name__ == "__main__":
                 history = agent.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
             except Exception:
                 show_graghs(env, timeCb.training_time,
-                            '{}-ddpg-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
+                            '{}-ddpg-{}-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS, PEACH),
+                            history=history.history)
             else:
                 show_graghs(env, timeCb.training_time,
-                            '{}-ddpg-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
+                            '{}-ddpg-{}-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS, PEACH),
+                            history=history.history)
 
         elif METHOD == "dqn":  # DQN
             model = Sequential()

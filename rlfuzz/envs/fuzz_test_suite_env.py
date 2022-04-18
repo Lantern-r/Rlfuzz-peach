@@ -12,6 +12,7 @@ class FuzzlibpngEnv(FuzzBaseEnv):
         self._set_out = []
         self._input_maxsize = 32 * 1024  # 最大输入文件的大小
         self._Seed_Path = ''
+        self.seed_names = []
         self._dataModelName = 'PNG'
         self._PitPath = 'file:test/pit/png_datamodel.xml'
         super(FuzzlibpngEnv, self).__init__()
@@ -28,9 +29,9 @@ class FuzzlibpngEnv(FuzzBaseEnv):
             self._input_maxsize = 32 * 1024
             self.reset()
         elif os.path.isdir(seed_path):
-            seed_names = os.listdir(seed_path)
+            self.seed_names = os.listdir(seed_path)
             self._seed = []
-            for each in seed_names:
+            for each in self.seed_names:
                 if each.endswith(self._suffix):
                     with open(os.path.join(seed_path, each), 'rb') as fp:
                         seed = fp.read()
@@ -54,6 +55,7 @@ class FuzzguetzilEnv(FuzzBaseEnv):
         self._suffix = '.jpg'
         self._input_maxsize = 32 * 1024  # 最大输入文件的大小
         self._Seed_Path = ''
+        self.seed_names = []
         self._dataModelName = 'JPGData'
         self._PitPath = 'file:test/pit/JPG_DataModel.xml'
         self.seed_names = []
