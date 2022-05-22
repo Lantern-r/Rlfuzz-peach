@@ -145,6 +145,21 @@ register(
     id='FuzzPngquant-v0',
     entry_point='rlfuzz.envs:FuzzpngquantEnv',
 )
+
+
+# CImg
+def CImg_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/Cimg-mod/image2ascii',
+    )
+
+
+register(
+    id='FuzzCImg-v0',
+    entry_point='rlfuzz.envs:FuzzCImgEnv',
+)
+
 # user defined binary
 register(
     id='UserDefined-v0',

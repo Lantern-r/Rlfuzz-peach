@@ -49,7 +49,8 @@ INITIAL_SEED_PATH = {
     'Fuzzlibpng-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/',
     'FuzzPngquant-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/',
     'Fuzzguetzil-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
-    'Fuzzlibjpeg-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds'
+    'Fuzzlibjpeg-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
+    'FuzzCImg-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/Cimg-mod/SEED'
 }
 
 
@@ -137,8 +138,8 @@ if __name__ == "__main__":
 
     # [e.id for e in gym.envs.registry.all()]
     if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
-                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0', 'Fuzzguetzil-v0','Fuzzlibjpeg-v0'] and METHOD in [
-        "random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
+                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0', 'Fuzzguetzil-v0', 'Fuzzlibjpeg-v0', 'FuzzCImg-v0'] and METHOD in [
+                    "random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
         env = gym.make(ENV_NAME)
         env.seed(5)  # 起点相同
 
