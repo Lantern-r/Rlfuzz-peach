@@ -134,16 +134,16 @@ class FuzzBaseEnv(gym.Env):
             self.mutator = FuzzMutator(self.input_maxsize)
         self.observation_space = spaces.Box(0, 255, shape=(self.input_maxsize,), dtype='int8')  # 更新状态空间（set_seed后需要修改）
 
-        # 清空记录
-        self.input_len_history = []  # 记录生成input的长度
-        self.mutate_history = []  # 记录每次选择的变异策略
-        self.reward_history = []  # 记录训练全过程每一步的reward
-        self.unique_path_history = []  # 记录发现的新路径数量（coverage_data不同）
-        self.transition_count = []  # 记录每次input运行的EDGE数量
-        self.virgin_count = []
-        if self.PeachFlag:
-            self.mutate_num_history = []  # 记录每次选择的变异块
-            self.useful_sample_crack_info = {}
+        # # 清空记录
+        # self.input_len_history = []  # 记录生成input的长度
+        # self.mutate_history = []  # 记录每次选择的变异策略
+        # self.reward_history = []  # 记录训练全过程每一步的reward
+        # self.unique_path_history = []  # 记录发现的新路径数量（coverage_data不同）
+        # self.transition_count = []  # 记录每次input运行的EDGE数量
+        # self.virgin_count = []
+        # if self.PeachFlag:
+        #     self.mutate_num_history = []  # 记录每次选择的变异块
+        #     self.useful_sample_crack_info = {}
 
         assert len(self.last_input_data) <= self.input_maxsize
         return list(self.last_input_data) + [0] * (self.input_maxsize - len(self.last_input_data))
@@ -196,7 +196,10 @@ class FuzzBaseEnv(gym.Env):
                 density = sum([n << l for n, l in zip(dens, ll[-2:])])
                 muteble_block_num = int(sum([n << l for n, l in zip(mutable, ll[-2:])]) / 256 * len(self.muteble_num))
                 # 根据可变异块的编号选择变异位置
-                mutate_block_index = self.muteble_num[muteble_block_num]
+                if len(self.muteble_num) == 0:
+                    mutate_block_index = 0
+                else:
+                    mutate_block_index = self.muteble_num[muteble_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_index]
                 if self.initial_seed:
                     input_data = self.last_input_data
