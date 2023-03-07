@@ -31,26 +31,24 @@ from rlfuzz.envs.restart_remote_monitor import restart_ssh
 
 np.random.seed(5)
 
-os.chdir('/home/real/Rlfuzz-peach/')
+project_path = "/root/Rlfuzz-peach"
+
+os.chdir(project_path)
 
 # 每个环境的初始文件路径
 INITIAL_SEED_PATH = {
-    'FuzzBase64-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/base64/inputs/utmp.b64',
-    'FuzzMd5sum-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/inputs/bin-ls-md5s',
-    'FuzzUniq-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/uniq/inputs/man-clang3-sorted',
-    'FuzzWho-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
-    'FuzzBase64-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/base64/inputs/utmp.b64',
-    'FuzzMd5sum-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/inputs/bin-ls-md5s',
-    'FuzzUniq-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/uniq/inputs/man-clang3-sorted',
-    'FuzzWho-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
-    'FuzzAC68U-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/router-mod/AC68U/4.txt',
-    'FuzzAC9-v0': r'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
-    'Fuzzgzip-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/gzip-mod/seed',  # /1.ppt.gz',
-    'Fuzzlibpng-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/',
-    'FuzzPngquant-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/',
-    'Fuzzguetzil-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
-    'Fuzzlibjpeg-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
-    'FuzzCImg-v0': r'/home/real/Rlfuzz-peach/rlfuzz/mods/Cimg-mod/SEED'
+    'FuzzBase64-v0': f'{project_path}/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/base64/inputs/utmp.b64',
+    'FuzzMd5sum-v0': f'{project_path}/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/md5sum/inputs/bin-ls-md5s',
+    'FuzzUniq-v0': f'{project_path}/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/uniq/inputs/man-clang3-sorted',
+    'FuzzWho-v0': f'{project_path}/rlfuzz/mods/lava-m-mod/lava_corpus/LAVA-M/who/inputs/utmp',
+    'FuzzAC68U-v0': f'{project_path}/rlfuzz/mods/router-mod/AC68U/4.txt',
+    'FuzzAC9-v0': f'/home/real/AIfuzz/multimutatefuzz/rlfuzz/gym_fuzzing/gym_fuzz1ng/mods/router-mod/AC68U/host10.txt',
+    'Fuzzgzip-v0': f'{project_path}/rlfuzz/mods/gzip-mod/seed',  # /1.ppt.gz',
+    'Fuzzlibpng-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/libpng-1.2.56/seeds/',
+    'FuzzPngquant-v0': f'{project_path}/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/',
+    'Fuzzguetzil-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
+    'Fuzzlibjpeg-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
+    'FuzzCImg-v0': f'{project_path}/rlfuzz/mods/Cimg-mod/SEED'
 }
 
 
@@ -63,7 +61,7 @@ class TimeHistory(Callback):
         self.training_time = self.end_time - self.start_time
 
 
-def show_graghs(env, training_time, json_name, history=None):
+def show_graphs(env, training_time, json_name, history=None):
     data_json = {}
 
     if args.peach:
@@ -138,11 +136,12 @@ if __name__ == "__main__":
 
     # [e.id for e in gym.envs.registry.all()]
     if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
-                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0', 'Fuzzguetzil-v0', 'Fuzzlibjpeg-v0', 'FuzzCImg-v0'] and METHOD in [
-                    "random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
+                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0', 'Fuzzguetzil-v0', 'Fuzzlibjpeg-v0',
+                    'FuzzCImg-v0'] and METHOD in [
+        "random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
         env = gym.make(ENV_NAME)
-        env.seed(5)  # 起点相同
-
+        # env.seed(5)  # 起点相同
+        env.reset()
         if args.use_seed:  # 输入初始数据
             SEED_PATH = INITIAL_SEED_PATH[ENV_NAME]
             if os.path.exists(SEED_PATH):
@@ -178,9 +177,8 @@ if __name__ == "__main__":
             end = time.time()
 
             print('[+] {}s'.format(end - start))
-            history = {}
-            history['nb_steps'] = nb_steps
-            show_graghs(env, end - start, '{}-random-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS),
+            history = {'nb_steps': nb_steps}
+            show_graphs(env, end - start, '{}-random-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS),
                         history=history)
 
         elif METHOD == "ddpg":
@@ -226,11 +224,11 @@ if __name__ == "__main__":
             try:
                 history = agent.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
             except Exception:
-                show_graghs(env, timeCb.training_time,
+                show_graphs(env, timeCb.training_time,
                             '{}-ddpg-{}-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS, PEACH),
                             history=history.history)
             else:
-                show_graghs(env, timeCb.training_time,
+                show_graphs(env, timeCb.training_time,
                             '{}-ddpg-{}-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS, PEACH),
                             history=history.history)
 
@@ -258,7 +256,7 @@ if __name__ == "__main__":
             timeCb = TimeHistory()
             history = dqn.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
 
-            show_graghs(env, timeCb.training_time,
+            show_graphs(env, timeCb.training_time,
                         '{}-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
         elif METHOD == "double-dqn":
             model = Sequential()
@@ -284,7 +282,7 @@ if __name__ == "__main__":
             timeCb = TimeHistory()
             history = dqn.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
 
-            show_graghs(env, timeCb.training_time,
+            show_graphs(env, timeCb.training_time,
                         '{}-double-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
         else:
             model = Sequential()
@@ -310,5 +308,5 @@ if __name__ == "__main__":
             timeCb = TimeHistory()
             history = dqn.fit(env, nb_steps=ALL_STEPS, visualize=False, verbose=1, callbacks=[timeCb])
 
-            show_graghs(env, timeCb.training_time,
+            show_graphs(env, timeCb.training_time,
                         '{}-duel-dqn-{}-{}'.format(ENV_NAME, ACTIVATION, WARMUP_STEPS), history=history.history)
