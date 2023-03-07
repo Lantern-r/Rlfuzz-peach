@@ -1,22 +1,24 @@
-import gym
-from gym import spaces
-import datetime
 import copy
-import os
-import numpy as np
-import xxhash
-import random
+import datetime
 from configparser import ConfigParser
 
+import gym
+import xxhash
+from gym import spaces
+
 import rlfuzz.coverage as coverage
-from rlfuzz.coverage import PATH_MAP_SIZE
 from rlfuzz.coverage import MAP_SIZE_SOCKET
+from rlfuzz.coverage import PATH_MAP_SIZE
 from rlfuzz.envs.fuzz_mutator import *
 from rlfuzz.envs.sample_analyse import *
 
 
 class FuzzBaseEnv(gym.Env):
     def __init__(self, socket_flag=False):
+
+        self.record_iter = 0 # 第 x 个半小时
+        self.start_time = time.time() # fuzz 开始时间
+
         self.socket_flag = False
         self.PeachFlag = False
         # Classes that inherit FuzzBase must define before calling this
@@ -26,8 +28,8 @@ class FuzzBaseEnv(gym.Env):
             self.engine = coverage.Afl(self._target_path, args=self._args, suffix=self._suffix, set_out=self._set_out)
 
         self.mutate_num_history = None
-        self.muteble_num_list = None
-        self.muteble_num = None
+        self.mutable_num_list = None
+        self.mutable_num = None
         self.seed_block = None
         self.seed_block_list = None
         self.useful_sample_crack_info = None
@@ -194,12 +196,12 @@ class FuzzBaseEnv(gym.Env):
                 ll = [12, 8, 4, 0]
                 loc = sum([n << l for n, l in zip(locs, ll)])
                 density = sum([n << l for n, l in zip(dens, ll[-2:])])
-                muteble_block_num = int(sum([n << l for n, l in zip(mutable, ll[-2:])]) / 256 * len(self.muteble_num))
+                muteble_block_num = int(sum([n << l for n, l in zip(mutable, ll[-2:])]) / 256 * len(self.mutable_num))
                 # 根据可变异块的编号选择变异位置
-                if len(self.muteble_num) == 0:
+                if len(self.mutable_num) == 0:
                     mutate_block_index = 0
                 else:
-                    mutate_block_index = self.muteble_num[muteble_block_num]
+                    mutate_block_index = self.mutable_num[muteble_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_index]
                 if self.initial_seed:
                     input_data = self.last_input_data
@@ -266,7 +268,7 @@ class FuzzBaseEnv(gym.Env):
             self.input_dict[tmpHash] = input_data
             self.last_input_data = input_data
             if self.PeachFlag:
-                self.useful_sample_crack_info[tmpHash] = [self.seed_block, self.muteble_num]
+                self.useful_sample_crack_info[tmpHash] = [self.seed_block, self.mutable_num]
         else:  # 从记录中随机选择待变异样本
             self.change_seed_count += 1
             reward = self.coverageInfo.reward()
@@ -276,7 +278,7 @@ class FuzzBaseEnv(gym.Env):
                 rand_choice = random.choice(list(self.input_dict))
                 self.last_input_data = self.input_dict[rand_choice]
                 if self.PeachFlag:  # update model crack result when not fuzz in sequence
-                    self.seed_block, self.muteble_num = copy.deepcopy(self.useful_sample_crack_info[rand_choice][0]), \
+                    self.seed_block, self.mutable_num = copy.deepcopy(self.useful_sample_crack_info[rand_choice][0]), \
                                                         self.useful_sample_crack_info[rand_choice][1]
 
         self.virgin_count.append([self.virgin_single_count, self.virgin_multi_count])  #
@@ -309,6 +311,12 @@ class FuzzBaseEnv(gym.Env):
                 fp.write(info['input_data'])
         else:
             done = False
+
+        current_time = time.time()
+        if current_time >= self.record_iter * 1800:
+            self.record_iter += 1
+            with open(f"./{datetime.datetime.now().strftime('%Y-%m-%d')}", "a") as record_file:
+                record_file.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}] cov is {reward} ; edge is {self.transition_count[-1]}\n")
 
         # 记录reward
         self.reward_history.append(reward)
@@ -367,7 +375,7 @@ class FuzzBaseEnv(gym.Env):
         self.last_input_data = self._seed[self.seed_index]
         if self.PeachFlag:
             self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
-            self.muteble_num = self.muteble_num_list[self.seed_index]
+            self.mutable_num = self.mutable_num_list[self.seed_index]
 
     def set_peach(self):
         self.PeachFlag = True
@@ -376,21 +384,21 @@ class FuzzBaseEnv(gym.Env):
         #                                                      self._Seed_Path,
         #                                                      self._PitPath)
         if os.path.isfile(self._Seed_Path):
-            self.seed_block, self.muteble_num = NewSample_dataCrack(self._dataModelName,
+            self.seed_block, self.mutable_num = NewSample_dataCrack(self._dataModelName,
                                                                     self._Seed_Path,
                                                                     self._PitPath)
         elif os.path.isdir(self._Seed_Path):
             self.seed_block_list = []
-            self.muteble_num_list = []
+            self.mutable_num_list = []
             for each in self.seed_names:
                 if each.endswith(self._suffix):
                     tmp_seed_block, tmp_muteble_num = NewSample_dataCrack(self._dataModelName,
                                                                           os.path.join(self._Seed_Path, each),
                                                                           self._PitPath)
                     self.seed_block_list.append(tmp_seed_block)
-                    self.muteble_num_list.append(tmp_muteble_num)
+                    self.mutable_num_list.append(tmp_muteble_num)
             self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
-            self.muteble_num = self.muteble_num_list[self.seed_index]
+            self.mutable_num = self.mutable_num_list[self.seed_index]
         self.mutate_num_history = []  # 记录每次选择的变异块
         self.useful_sample_crack_info = {}
         # 5. 加入格式约束

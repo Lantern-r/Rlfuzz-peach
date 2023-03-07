@@ -53,10 +53,20 @@ INITIAL_SEED_PATH = {
 
 
 class TimeHistory(Callback):
-    def on_train_begin(self, logs={}):
+    def __init__(self):
+        super().__init__()
+        self.training_time = None
+        self.start_time = None
+        self.end_time = None
+
+    def on_train_begin(self, logs=None):
+        if logs is None:
+            logs = {}
         self.start_time = time.time()
 
-    def on_train_end(self, logs={}):
+    def on_train_end(self, logs=None):
+        if logs is None:
+            logs = {}
         self.end_time = time.time()
         self.training_time = self.end_time - self.start_time
 

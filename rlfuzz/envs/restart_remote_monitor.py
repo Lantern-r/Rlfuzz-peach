@@ -69,7 +69,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="remote connection with and your username and password through ssh or telnet")
     parser.add_argument('--method', '-m', help='ssh or telnet ,defult ssh', default='ssh')
-    parser.add_argument('--usrname', '-u', help='username')
+    parser.add_argument('--username', '-u', help='username')
     parser.add_argument('--passwd', '-P', help='password')
     parser.add_argument('--ip', '-I', help='remote ip address')
     parser.add_argument('--port', '-p', help='remote port')
