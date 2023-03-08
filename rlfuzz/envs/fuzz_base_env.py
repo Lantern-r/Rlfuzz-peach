@@ -15,9 +15,8 @@ from rlfuzz.envs.sample_analyse import *
 
 class FuzzBaseEnv(gym.Env):
     def __init__(self, socket_flag=False):
-
-        self.record_iter = 0 # 第 x 个半小时
-        self.start_time = time.time() # fuzz 开始时间
+        self.record_iter = 0  # 第 x 个半小时
+        self.start_time = time.time()  # fuzz 开始时间
 
         self.socket_flag = False
         self.PeachFlag = False
@@ -273,13 +272,13 @@ class FuzzBaseEnv(gym.Env):
             self.change_seed_count += 1
             reward = self.coverageInfo.reward()
             if not self.input_dict:  # 如果当前种子没有产生过有用的样本
-                self.Change_Seed()  # 更换一个初始种子
+                self.change_seed()  # 更换一个初始种子
             else:
                 rand_choice = random.choice(list(self.input_dict))
                 self.last_input_data = self.input_dict[rand_choice]
                 if self.PeachFlag:  # update model crack result when not fuzz in sequence
                     self.seed_block, self.mutable_num = copy.deepcopy(self.useful_sample_crack_info[rand_choice][0]), \
-                                                        self.useful_sample_crack_info[rand_choice][1]
+                        self.useful_sample_crack_info[rand_choice][1]
 
         self.virgin_count.append([self.virgin_single_count, self.virgin_multi_count])  #
         self.unique_path_history.append(
@@ -288,7 +287,7 @@ class FuzzBaseEnv(gym.Env):
         # 记录每一步运行的EDGE数量
         self.transition_count.append(self.coverageInfo.transition_count())
         if self.change_seed_count >= 100:
-            self.Change_Seed()  # 连续100个种子未产生新的路径，就切换种子
+            self.change_seed()  # 连续100个种子未产生新的路径，就切换种子
         return {
             "reward": min(1, reward),
             "input_data": input_data,
@@ -313,10 +312,11 @@ class FuzzBaseEnv(gym.Env):
             done = False
 
         current_time = time.time()
-        if current_time >= self.record_iter * 1800:
+        if current_time - self.start_time >= self.record_iter * 1800:
             self.record_iter += 1
-            with open(f"./{datetime.datetime.now().strftime('%Y-%m-%d')}", "a") as record_file:
-                record_file.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}] cov is {reward} ; edge is {self.transition_count[-1]}\n")
+            with open(f"./{datetime.datetime.now().strftime('%Y-%m-%d')}_{self._name}", "a") as record_file:
+                record_file.write(
+                    f"[{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}] cov is {reward} ; edge is {self.transition_count[-1]}\n")
 
         # 记录reward
         self.reward_history.append(reward)
@@ -346,7 +346,7 @@ class FuzzBaseEnv(gym.Env):
     def get_poc_path(self):
         return self.POC_PATH
 
-    def Change_Seed(self):
+    def change_seed(self):
         self.change_seed_count = 0
         seed_length = len(self._seed)
         if seed_length == 1:  # 只有一个种子直接返回

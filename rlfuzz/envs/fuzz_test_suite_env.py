@@ -5,6 +5,7 @@ import os
 
 class FuzzlibpngEnv(FuzzBaseEnv):
     def __init__(self):
+        self._name = "libpng"
         self._target_path = rlfuzz.libpng_target_path()
         self._args = []
         self._seed = [b'']  # 指定初始变异的文件
