@@ -17,6 +17,8 @@ class FuzzBaseEnv(gym.Env):
     def __init__(self, socket_flag=False):
         self.record_iter = 0  # 第 x 个半小时
         self.start_time = time.time()  # fuzz 开始时间
+        self.crash_num = 0  # crash 数量
+        self.step_count = 0
 
         self.socket_flag = False
         self.PeachFlag = False
@@ -308,18 +310,22 @@ class FuzzBaseEnv(gym.Env):
             print(' [+] Find {}'.format(name))
             with open(os.path.join(self.POC_PATH, name), 'wb') as fp:
                 fp.write(info['input_data'])
+            self.crash_num += 1
         else:
             done = False
 
+        # 记录reward
+        self.reward_history.append(reward)
+
+        self.step_count += 1
         current_time = time.time()
         if current_time - self.start_time >= self.record_iter * 1800:
             self.record_iter += 1
             with open(f"./{datetime.datetime.now().strftime('%Y-%m-%d')}_{self._name}", "a") as record_file:
-                record_file.write(
-                    f"[{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}] cov is {reward} ; edge is {self.transition_count[-1]}\n")
-
-        # 记录reward
-        self.reward_history.append(reward)
+                record_file.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}] "
+                                  f"cov is {max(self.reward_history)} ; edge is {max(self.transition_count)} ; "
+                                  f"crash num is {self.crash_num} ;"
+                                  f"step cout: {self.step_count}\n")
 
         # 将input_data转化为用于NN的state格式
         state = [m for m in info['input_data']]
