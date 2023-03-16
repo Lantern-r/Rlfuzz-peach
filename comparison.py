@@ -124,7 +124,8 @@ if __name__ == "__main__":
     parser.add_argument('--peach', action='store_true', help='Use Peach')
     parser.add_argument('--pit', help='Pit File Path')
     args = parser.parse_args()
-
+    if args == 0:
+        parser.print_help()
     ALL_STEPS = args.steps
     WARMUP_STEPS = int(ALL_STEPS * args.radio)
     ACTIVATION = args.activation

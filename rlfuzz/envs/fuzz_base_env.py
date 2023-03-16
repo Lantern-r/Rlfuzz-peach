@@ -321,9 +321,10 @@ class FuzzBaseEnv(gym.Env):
         current_time = time.time()
         if current_time - self.start_time >= self.record_iter * 1800:
             self.record_iter += 1
-            with open(f"./{datetime.datetime.now().strftime('%Y-%m-%d')}_{self._name}", "a") as record_file:
+            with open(f"./{self._name}.txt", "a") as record_file:
                 record_file.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}] "
-                                  f"cov is {max(self.reward_history)} ; edge is {max(self.transition_count)} ; "
+                                  f"cov is {max(self.reward_history)} ; "
+                                  f"edge is {max(self.transition_count)} ; "
                                   f"crash num is {self.crash_num} ;"
                                   f"step cout: {self.step_count}\n")
 

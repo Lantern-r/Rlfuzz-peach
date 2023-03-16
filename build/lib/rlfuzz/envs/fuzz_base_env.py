@@ -1,33 +1,36 @@
-import gym
-from gym import spaces
-import datetime
 import copy
-import os
-import numpy as np
-import xxhash
-import random
+import datetime
 from configparser import ConfigParser
 
+import gym
+import xxhash
+from gym import spaces
+
 import rlfuzz.coverage as coverage
-from rlfuzz.coverage import PATH_MAP_SIZE
 from rlfuzz.coverage import MAP_SIZE_SOCKET
+from rlfuzz.coverage import PATH_MAP_SIZE
 from rlfuzz.envs.fuzz_mutator import *
 from rlfuzz.envs.sample_analyse import *
 
 
 class FuzzBaseEnv(gym.Env):
     def __init__(self, socket_flag=False):
+        self.record_iter = 0  # 第 x 个半小时
+        self.start_time = time.time()  # fuzz 开始时间
+        self.crash_num = 0  # crash 数量
+        self.step_count = 0
+
         self.socket_flag = False
         self.PeachFlag = False
         # Classes that inherit FuzzBase must define before calling this
         if socket_flag:
             self.engine = coverage.SocketComm(self.target_ip, self.target_port, self.comm_method)
         else:
-            self.engine = coverage.Afl(self._target_path, args=self._args, suffix=self._suffix)
+            self.engine = coverage.Afl(self._target_path, args=self._args, suffix=self._suffix, set_out=self._set_out)
 
         self.mutate_num_history = None
-        self.muteble_num_list = None
-        self.muteble_num = None
+        self.mutable_num_list = None
+        self.mutable_num = None
         self.seed_block = None
         self.seed_block_list = None
         self.useful_sample_crack_info = None
@@ -113,41 +116,6 @@ class FuzzBaseEnv(gym.Env):
             self.mutator = FuzzMutator(self.input_maxsize)
             self.action_space = spaces.Discrete(self.mutate_size)
 
-    # 恢复默认环境
-    def recoverEnv(self):
-        if self.isDiscreteEnv:
-            self.isDiscreteEnv = False
-            self.mutator = FuzzMutatorPlus(self.input_maxsize)
-        if not self.PeachFlag:
-            self.action_space = spaces.Dict({
-                'mutate': spaces.Discrete(self.mutate_size),
-                'loc': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'density': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                ))
-            })
-        else:
-            self.action_space = spaces.Dict({
-                'mutate': spaces.Discrete(self.mutate_size),
-                'loc': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'density': spaces.Tuple((
-                    spaces.Discrete(16),
-                    spaces.Discrete(16)
-                )),
-                'block_num': spaces.Discrete(len(self.muteble_num))
-            })
-
     def reset(self):
         self.seed_index = 0
         self.last_input_data = self._seed[self.seed_index]
@@ -169,16 +137,16 @@ class FuzzBaseEnv(gym.Env):
             self.mutator = FuzzMutator(self.input_maxsize)
         self.observation_space = spaces.Box(0, 255, shape=(self.input_maxsize,), dtype='int8')  # 更新状态空间（set_seed后需要修改）
 
-        # 清空记录
-        self.input_len_history = []  # 记录生成input的长度
-        self.mutate_history = []  # 记录每次选择的变异策略
-        self.reward_history = []  # 记录训练全过程每一步的reward
-        self.unique_path_history = []  # 记录发现的新路径数量（coverage_data不同）
-        self.transition_count = []  # 记录每次input运行的EDGE数量
-        self.virgin_count = []
-        if self.PeachFlag:
-            self.mutate_num_history = []  # 记录每次选择的变异块
-            self.useful_sample_crack_info = {}
+        # # 清空记录
+        # self.input_len_history = []  # 记录生成input的长度
+        # self.mutate_history = []  # 记录每次选择的变异策略
+        # self.reward_history = []  # 记录训练全过程每一步的reward
+        # self.unique_path_history = []  # 记录发现的新路径数量（coverage_data不同）
+        # self.transition_count = []  # 记录每次input运行的EDGE数量
+        # self.virgin_count = []
+        # if self.PeachFlag:
+        #     self.mutate_num_history = []  # 记录每次选择的变异块
+        #     self.useful_sample_crack_info = {}
 
         assert len(self.last_input_data) <= self.input_maxsize
         return list(self.last_input_data) + [0] * (self.input_maxsize - len(self.last_input_data))
@@ -216,19 +184,25 @@ class FuzzBaseEnv(gym.Env):
                     mutate = action['mutate']
                     locs = action['loc']
                     dens = action['density']
-                    muteble_block_num = action['block_num']
+                    mutable = action['block_num']
                 else:
                     mutate = np.argmax(action[:self.mutate_size])
                     locs = [np.argmax(action[start: start + 16]) for start in
                             range(self.mutate_size, self.mutate_size + 64, 16)]
                     dens = [np.argmax(action[start: start + 16]) for start in
                             range(self.mutate_size + 64, self.mutate_size + 64 + 32, 16)]
-                    muteble_block_num = np.argmax(action[self.mutate_size + 64 + 32:])
+                    mutable = [np.argmax(action[start: start + 16]) for start in
+                               range(self.mutate_size + 64 + 32, self.mutate_size + 64 + 32 + 32,
+                                     16)]  # np.argmax(action[self.mutate_size + 64 + 32:])
                 ll = [12, 8, 4, 0]
                 loc = sum([n << l for n, l in zip(locs, ll)])
                 density = sum([n << l for n, l in zip(dens, ll[-2:])])
+                muteble_block_num = int(sum([n << l for n, l in zip(mutable, ll[-2:])]) / 256 * len(self.mutable_num))
                 # 根据可变异块的编号选择变异位置
-                mutate_block_index = self.muteble_num[muteble_block_num]
+                if len(self.mutable_num) == 0:
+                    mutate_block_index = 0
+                else:
+                    mutate_block_index = self.mutable_num[muteble_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_index]
                 if self.initial_seed:
                     input_data = self.last_input_data
@@ -295,18 +269,18 @@ class FuzzBaseEnv(gym.Env):
             self.input_dict[tmpHash] = input_data
             self.last_input_data = input_data
             if self.PeachFlag:
-                self.useful_sample_crack_info[tmpHash] = [self.seed_block, self.muteble_num]
+                self.useful_sample_crack_info[tmpHash] = [self.seed_block, self.mutable_num]
         else:  # 从记录中随机选择待变异样本
             self.change_seed_count += 1
             reward = self.coverageInfo.reward()
             if not self.input_dict:  # 如果当前种子没有产生过有用的样本
-                self.Change_Seed()  # 更换一个初始种子
+                self.change_seed()  # 更换一个初始种子
             else:
                 rand_choice = random.choice(list(self.input_dict))
                 self.last_input_data = self.input_dict[rand_choice]
                 if self.PeachFlag:  # update model crack result when not fuzz in sequence
-                    self.seed_block, self.muteble_num = copy.deepcopy(self.useful_sample_crack_info[rand_choice][0]), \
-                                                        self.useful_sample_crack_info[rand_choice][1]
+                    self.seed_block, self.mutable_num = copy.deepcopy(self.useful_sample_crack_info[rand_choice][0]), \
+                        self.useful_sample_crack_info[rand_choice][1]
 
         self.virgin_count.append([self.virgin_single_count, self.virgin_multi_count])  #
         self.unique_path_history.append(
@@ -315,7 +289,7 @@ class FuzzBaseEnv(gym.Env):
         # 记录每一步运行的EDGE数量
         self.transition_count.append(self.coverageInfo.transition_count())
         if self.change_seed_count >= 100:
-            self.Change_Seed()  # 连续100个种子未产生新的路径，就切换种子
+            self.change_seed()  # 连续100个种子未产生新的路径，就切换种子
         return {
             "reward": min(1, reward),
             "input_data": input_data,
@@ -336,11 +310,22 @@ class FuzzBaseEnv(gym.Env):
             print(' [+] Find {}'.format(name))
             with open(os.path.join(self.POC_PATH, name), 'wb') as fp:
                 fp.write(info['input_data'])
+            self.crash_num += 1
         else:
             done = False
 
         # 记录reward
         self.reward_history.append(reward)
+
+        self.step_count += 1
+        current_time = time.time()
+        if current_time - self.start_time >= self.record_iter * 1800:
+            self.record_iter += 1
+            with open(f"./{datetime.datetime.now().strftime('%Y-%m-%d')}_{self._name}", "a") as record_file:
+                record_file.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}] "
+                                  f"cov is {max(self.reward_history)} ; edge is {max(self.transition_count)} ; "
+                                  f"crash num is {self.crash_num} ;"
+                                  f"step cout: {self.step_count}\n")
 
         # 将input_data转化为用于NN的state格式
         state = [m for m in info['input_data']]
@@ -367,7 +352,7 @@ class FuzzBaseEnv(gym.Env):
     def get_poc_path(self):
         return self.POC_PATH
 
-    def Change_Seed(self):
+    def change_seed(self):
         self.change_seed_count = 0
         seed_length = len(self._seed)
         if seed_length == 1:  # 只有一个种子直接返回
@@ -395,9 +380,8 @@ class FuzzBaseEnv(gym.Env):
             self.initial_seed = True
         self.last_input_data = self._seed[self.seed_index]
         if self.PeachFlag:
-            self.recoverEnv()  # 重设环境修改num_block的大小
             self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
-            self.muteble_num = self.muteble_num_list[self.seed_index]
+            self.mutable_num = self.mutable_num_list[self.seed_index]
 
     def set_peach(self):
         self.PeachFlag = True
@@ -406,21 +390,21 @@ class FuzzBaseEnv(gym.Env):
         #                                                      self._Seed_Path,
         #                                                      self._PitPath)
         if os.path.isfile(self._Seed_Path):
-            self.seed_block, self.muteble_num = NewSample_dataCrack(self._dataModelName,
+            self.seed_block, self.mutable_num = NewSample_dataCrack(self._dataModelName,
                                                                     self._Seed_Path,
                                                                     self._PitPath)
         elif os.path.isdir(self._Seed_Path):
             self.seed_block_list = []
-            self.muteble_num_list = []
+            self.mutable_num_list = []
             for each in self.seed_names:
                 if each.endswith(self._suffix):
                     tmp_seed_block, tmp_muteble_num = NewSample_dataCrack(self._dataModelName,
                                                                           os.path.join(self._Seed_Path, each),
                                                                           self._PitPath)
                     self.seed_block_list.append(tmp_seed_block)
-                    self.muteble_num_list.append(tmp_muteble_num)
+                    self.mutable_num_list.append(tmp_muteble_num)
             self.seed_block = copy.deepcopy(self.seed_block_list[self.seed_index])
-            self.muteble_num = self.muteble_num_list[self.seed_index]
+            self.mutable_num = self.mutable_num_list[self.seed_index]
         self.mutate_num_history = []  # 记录每次选择的变异块
         self.useful_sample_crack_info = {}
         # 5. 加入格式约束
@@ -436,6 +420,9 @@ class FuzzBaseEnv(gym.Env):
                 spaces.Discrete(16),
                 spaces.Discrete(16)
             )),
-            'block_num': spaces.Discrete(len(self.muteble_num))
+            'block_num': spaces.Tuple((
+                spaces.Discrete(16),
+                spaces.Discrete(16)
+            ))
         })
         self.reset()

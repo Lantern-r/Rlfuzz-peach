@@ -103,6 +103,7 @@ class FuzzguetzilEnv(FuzzBaseEnv):
 
 class FuzzlibjpegEnv(FuzzBaseEnv):
     def __init__(self):
+        self._name = "libjpeg"
         self._target_path = rlfuzz.libjpeg_target_path()
         self._args = []
         self._seed = [b'']  # 指定初始变异的文件
