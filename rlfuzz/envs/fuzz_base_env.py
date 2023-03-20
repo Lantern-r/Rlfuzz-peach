@@ -197,12 +197,12 @@ class FuzzBaseEnv(gym.Env):
                 ll = [12, 8, 4, 0]
                 loc = sum([n << l for n, l in zip(locs, ll)])
                 density = sum([n << l for n, l in zip(dens, ll[-2:])])
-                muteble_block_num = int(sum([n << l for n, l in zip(mutable, ll[-2:])]) / 256 * len(self.mutable_num))
+                mutable_block_num = int(sum([n << l for n, l in zip(mutable, ll[-2:])]) / 256 * len(self.mutable_num))
                 # 根据可变异块的编号选择变异位置
                 if len(self.mutable_num) == 0:
                     mutate_block_index = 0
                 else:
-                    mutate_block_index = self.mutable_num[muteble_block_num]
+                    mutate_block_index = self.mutable_num[mutable_block_num]
                 (block_start_loc, block_length) = self.seed_block[mutate_block_index]
                 if self.initial_seed:
                     input_data = self.last_input_data
@@ -297,7 +297,6 @@ class FuzzBaseEnv(gym.Env):
         }
 
     def step(self, action):
-
         info = self.step_raw(action)
         reward = info['reward']
         assert reward <= 1

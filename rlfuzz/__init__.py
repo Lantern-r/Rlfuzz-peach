@@ -88,6 +88,21 @@ register(
 )
 
 
+# freetype2
+
+def freetype2_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/fuzzer-test-suite-mod/programs/freetype2-2017-afl',
+    )
+
+
+register(
+    id='Fuzzfreetype2-v0',
+    entry_point='rlfuzz.envs:Fuzzfreetype2Env',
+)
+
+
 # libpng
 
 def libpng_target_path():

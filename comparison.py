@@ -48,7 +48,8 @@ INITIAL_SEED_PATH = {
     'FuzzPngquant-v0': f'{project_path}/rlfuzz/mods/pngquant-mod/pngquant-master/test/img/',
     'Fuzzguetzil-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
     'Fuzzlibjpeg-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
-    'FuzzCImg-v0': f'{project_path}/rlfuzz/mods/Cimg-mod/SEED'
+    'FuzzCImg-v0': f'{project_path}/rlfuzz/mods/Cimg-mod/SEED',
+    'Fuzzfreetype2-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod//freetype2-2017/seeds'
 }
 
 
@@ -146,10 +147,7 @@ if __name__ == "__main__":
     print('[+] {}'.format(DIR_NAME))
 
     # [e.id for e in gym.envs.registry.all()]
-    if ENV_NAME in ['FuzzBase64-v0', 'FuzzMd5sum-v0', 'FuzzUniq-v0', 'FuzzWho-v0', 'FuzzPngquant-v0',
-                    'FuzzAC68U-v0', 'FuzzAC9-v0', 'Fuzzgzip-v0', 'Fuzzlibpng-v0', 'Fuzzguetzil-v0', 'Fuzzlibjpeg-v0',
-                    'FuzzCImg-v0'] and METHOD in [
-        "random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
+    if ENV_NAME in INITIAL_SEED_PATH.keys() and METHOD in ["random", "ddpg", "dqn", "double-dqn", "duel-dqn"]:
         env = gym.make(ENV_NAME)
         # env.seed(5)  # 起点相同
         env.reset()
