@@ -88,6 +88,20 @@ register(
 )
 
 
+# boringssl
+
+def boringssl_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/fuzzer-test-suite-mod/programs/boringssl-2016-02-12-afl'
+    )
+
+
+register(
+    id='Fuzzboringssl-v0',
+    entry_point='rlfuzz.envs:FuzzboringsslEnv',
+)
+
 # freetype2
 
 def freetype2_target_path():

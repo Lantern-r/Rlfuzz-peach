@@ -19,7 +19,6 @@ class FuzzBaseEnv(gym.Env):
         self.start_time = time.time()  # fuzz 开始时间
         self.crash_num = 0  # crash 数量
         self.step_count = 0
-
         self.socket_flag = False
         self.PeachFlag = False
         # Classes that inherit FuzzBase must define before calling this

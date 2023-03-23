@@ -49,7 +49,8 @@ INITIAL_SEED_PATH = {
     'Fuzzguetzil-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
     'Fuzzlibjpeg-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/guetzli-2017-3-30/seeds',
     'FuzzCImg-v0': f'{project_path}/rlfuzz/mods/Cimg-mod/SEED',
-    'Fuzzfreetype2-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod//freetype2-2017/seeds'
+    'Fuzzfreetype2-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/freetype2-2017/seeds',
+    'Fuzzboringssl-v0': f'{project_path}/rlfuzz/mods/fuzzer-test-suite-mod/boringssl-2016-02-12/seeds'
 }
 
 
