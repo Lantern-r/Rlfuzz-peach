@@ -1,0 +1,49 @@
+# My local notes
+plan.txt
+
+# Work directories.
+work
+
+# libFuzzer library. Should be built during the workshop.
+libFuzzer.a
+
+# clang and other binaries.
+bin/
+
+# corpus directories.
+corpus*
+
+# crash testcases
+crash*
+
+# fuzzers binaries.
+*_fuzzer
+
+# openssl sources after unpacking.
+openssl1.0.1f
+
+# c-ares sources after unpacking.
+c-ares
+
+# libxml2 sources after unpacking.
+libxml2
+
+# coverage files.
+*sancov
+*symcov
+
+# oom crashes.
+oom-*
+
+# libpng sources after unpacking.
+libpng
+
+# timeout crashes.
+timeout-*
+
+# re2 sources after unpacking.
+re2
+
+# pcre2 sources after unpacking.
+pcre2
+pcre2-10.00
