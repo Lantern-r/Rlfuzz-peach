@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rlfuzz/mods/fuzzer-test-suite-mod/programs/build/BUILD" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rlfuzz/mods/fuzzer-test-suite-mod/programs/build/SRC" vcs="Git" />
   </component>
 </project>

@@ -1,1 +1,0 @@
-[2023-03-20_17:29:38] cov is 0.0006103515625 ; edge is 20 ; crash num is 0 ;step cout: 1
